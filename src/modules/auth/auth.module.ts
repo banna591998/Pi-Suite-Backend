@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { BullModule } from '@nestjs/bull';
-import { AuthController } from './auth.controller';
+import { AuthGrpcController } from './auth.grpc.controller'; // নতুন যুক্ত হলো
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 
@@ -12,7 +12,7 @@ import { AuthRepository } from './auth.repository';
       name: 'email-queue',
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthGrpcController],
   providers: [AuthService, AuthRepository],
   exports: [AuthService],
 })

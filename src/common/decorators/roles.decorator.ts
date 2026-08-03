@@ -26,7 +26,7 @@ export class EnterpriseRolesGuard implements CanActivate {
     );
 
     if (!requiredRoles || requiredRoles.length === 0) {
-      return true; // কোনো রোল রিকোয়ার্ড না থাকলে এলাউড
+      return true;
     }
 
     const request = context.switchToHttp().getRequest();
