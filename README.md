@@ -5,94 +5,160 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+ # PI-SCM: Advanced Supply Chain Management System
 
-## Description
+PI-SCM is a comprehensive, modular, and scalable Backend system designed to handle complex Supply Chain Management (SCM) operations. Built with a modern tech stack, it supports multi-tenancy, high-performance communication, and robust security.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🚀 Core Architecture & Tech Stack
 
+- **Framework:** [NestJS](https://nestjs.com/) (Modular, Scalable Node.js framework)
+- **Language:** TypeScript
+- **Database:** PostgreSQL (via [Prisma ORM](https://www.prisma.io/))
+- **Communication:**
+  - **REST API:** Primary interface for frontend and external services.
+  - **gRPC:** High-performance microservice communication (e.g., Auth services).
+  - **Kafka:** Event-driven architecture for asynchronous service communication.
+- **Message Queue:** [Bull](https://github.com/OptimalBits/bull) (Redis-backed) for background tasks like email processing.
+- **Validation:** [Zod](https://zod.dev/) (Type-safe schema validation).
+- **Security:**
+  - **JWT & Passport.js:** Secure authentication with Google OAuth 2.0 support.
+  - **RBAC:** Granular Role-Based Access Control.
+  - **Two-Factor Authentication (2FA):** Integrated via `otplib`.
+
+---
+
+## 🏗️ Core Infrastructure Systems
+
+### 1. Multi-Tenancy
+The system supports a robust multi-tenant architecture:
+- **Tenant Identification:** Dynamically routes requests based on Host Headers or Tenant IDs.
+- **Isolation:** Ensures data integrity and security across different business entities.
+
+### 2. Hybrid Application
+Operates as both an HTTP server and a gRPC microservice:
+- **REST Gateway:** Handles standard web requests.
+- **gRPC Service:** Exposed on port `50051` for internal high-speed communication.
+
+### 3. Background Processing
+Utilizes Redis and Bull queues for:
+- Asynchronous email dispatching.
+- Scalable task processing without blocking the main event loop.
+
+---
+
+## 📦 Functional SCM Modules
+
+| Module | Description |
+| :--- | :--- |
+| **Procurement** | Manage purchasing, vendor interactions, and procurement lifecycles. |
+| **Inventory** | Real-time stock tracking, movements, and reorder alerts. |
+| **Warehouse** | Warehouse layouts, bin management, picking, and packing workflows. |
+| **TMS** | Transportation Management: Logistics planning and carrier tracking. |
+| **Manufacturing** | Production planning, BOM (Bill of Materials), and work orders. |
+| **Sales & Fulfillment** | Order management, CRM integration, and fulfillment tracking. |
+| **Finance & EAM** | Enterprise Asset Management and financial accounting integration. |
+| **Analytics** | Data-driven reporting and performance metrics across all modules. |
+| **Payment** | Stripe-integrated subscription and transaction management. |
+| **Collaboration** | Tools for business network collaboration with partners/suppliers. |
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Docker & Docker Compose
+- PostgreSQL (or use Docker)
+- Redis (for Bull queues)
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd pi-scm
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env` file based on the required configurations (Database URL, Redis, Kafka, Stripe, Google OAuth).
+
+### Database Setup
+1. Generate Prisma client:
+   ```bash
+   npx prisma generate
+   ```
+2. Run migrations:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+### Running the Application
 ```bash
-$ npm install
+# Development mode
+npm run start:dev
+
+# Production mode
+npm run start:prod
 ```
 
-## Compile and run the project
-
+### Infrastructure (Docker)
+Start Kafka and Zookeeper using Docker Compose:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker-compose up -d
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 📂 Project Structure
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```text
+src/
+├── common/           # Shared decorators, guards, interceptors, and pipes
+├── grpc/             # gRPC module configuration
+├── modules/          # Functional SCM and supporting business modules
+├── prisma/           # Prisma service and module
+├── proto/            # Protobuf definitions for gRPC
+├── utils/            # Shared utility functions
+└── main.ts           # Application entry point (Hybrid setup)
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🛡️ Security & Permissions
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Role-Based Access Control (RBAC)
+The system implements strict **Role-Based Access Control (RBAC)**. Key roles include:
+- `SUPER_ADMIN`, `TENANT_ADMIN`
+- `WMS_MANAGER`, `INVENTORY_CLERK`
+- `PROCUREMENT_OFFICER`, `FINANCE_CONTROLLER`
+- `SUPPLY_CHAIN_ANALYST`
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### Granular Resource Permissions
+The codebase supports fine-grained permissions (CREATE, READ, UPDATE, DELETE) across various SCM resources:
+- **WMS & Inventory:** Warehouses, zones, live stock counts, FEFO, safety stocks.
+- **TMS:** Fleet vehicles, shipments, GPS tracking, Proof of Delivery (POD).
+- **Procurement:** Purchase Orders (POs), RFQs, Vendor scorecards.
+- **Manufacturing:** BOMs, Work Orders, MRP calculations.
+- **Sales:** Order aggregation, dynamic pricing, invoices.
+- **Finance & EAM:** Ledgers, tax rules, fixed assets, depreciation.
+- **AI & Automation:** Demand forecasting, anomaly detection, predictive maintenance.
+- **Governance:** Audit trails (GDPR compliant), role matrices.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 🗄️ Database & Schema Management
 
-Check out a few resources that may come in handy when working with NestJS:
+- **Multi-Schema Support:** Prisma is configured to use a modular schema structure located in `prisma/schemas/`.
+- **Automated Seeding:** Initial permissions and system roles can be bootstrapped using the provided `permission.sql`.
+- **Client Generation:** The Prisma client is generated into a custom path: `src/generated/prisma`.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
+## 📜 License
+This project is [UNLICENSED](LICENSE).
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
