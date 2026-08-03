@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package collaboration;
+
+service CollaborationServiceGrpc {
+  rpc GetCollaborationEnums (EmptyRequest) returns (CollaborationResponse);
+
+  // Supplier Portal
+  rpc CreateSupplierRecord (CollaborationRequest) returns (CollaborationResponse);
+  rpc GetSupplierSubmissions (CollaborationRequest) returns (CollaborationResponse);
+  rpc UpdateSupplierRecord (CollaborationRequest) returns (CollaborationResponse);
+  rpc DeleteSupplierRecord (CollaborationRequest) returns (CollaborationResponse);
+
+  // Client Tracking
+  C_RpcClientTrackingUpsert (CollaborationRequest) returns (CollaborationResponse);
+  rpc GetClientTrackings (CollaborationRequest) returns (CollaborationResponse);
+  rpc DeleteClientTracking (CollaborationRequest) returns (CollaborationResponse);
+
+  // Contract Manufacturing
+  rpc CreateContractOrder (CollaborationRequest) returns (CollaborationResponse);
+  rpc GetContractOrders (CollaborationRequest) returns (CollaborationResponse);
+  rpc DeleteContractOrder (CollaborationRequest) returns (CollaborationResponse);
+
+  // Freight Bidding
+  rpc CreateFreightBid (CollaborationRequest) returns (CollaborationResponse);
+  rpc GetFreightBids (CollaborationRequest) returns (CollaborationResponse);
+  rpc DeleteFreightBid (CollaborationRequest) returns (CollaborationResponse);
+}
+
+message EmptyRequest {}
+
+message CollaborationRequest {
+  string tenantId = 1;
+  string id = 2;
+  string search = 3;
+  string payloadJson = 4; // DTO বা অবজেক্ট ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message CollaborationResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেসপন্স ডেটা JSON আকারে রাখতে
+}

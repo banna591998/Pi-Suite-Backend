@@ -1,61 +1,61 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  UsePipes,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { SalesService } from './sales.service';
-import {
-  type CreateSalesOrderSchema,
-  type GenerateInvoiceSchema,
-  type CreateSalesOrderDto,
-  type GenerateInvoiceDto,
-} from './dto/sales.dto';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
+import { status } from '@grpc/grpc-js';
 
-@Controller('sales')
-@UseGuards(RolesGuard)
+@Controller()
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
-  @Post('orders')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.MANAGER,
-    EnterpriseRole.STAFF,
-  )
-  async createSalesOrder(
-    @Body() dto: CreateSalesOrderDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.salesService.createOrder(tenantId, dto);
+  @GrpcMethod('SalesServiceGrpc', 'CreateSalesOrder')
+  async createSalesOrder(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.salesService.createOrder(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Sales order created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateSalesOrder Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating sales order',
+      });
+    }
   }
 
-  @Post('orders/:orderId/invoice')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.FINANCE_CONTROLLER,
-  )
-  async generateInvoice(
-    @Query('tenantId') tenantId: string,
-    @Param('orderId') orderId: string,
-    @Query('email') customerEmail: string,
-    @Query('name') customerName: string,
-    @Body() dto: GenerateInvoiceDto,
-  ) {
-    return this.salesService.generateAndSendInvoice(
-      tenantId,
-      orderId,
-      customerEmail,
-      customerName,
-      dto,
-    );
+  @GrpcMethod('SalesServiceGrpc', 'GenerateInvoice')
+  async generateInvoice(data: {
+    tenantId: string;
+    orderId: string;
+    customerEmail: string;
+    customerName: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.salesService.generateAndSendInvoice(
+        data.tenantId,
+        data.orderId,
+        data.customerEmail,
+        data.customerName,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Invoice generated and sent successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GenerateInvoice Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while generating invoice',
+      });
+    }
   }
 }

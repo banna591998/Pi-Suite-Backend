@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package tenant;
+
+service TenantServiceGrpc {
+  rpc GetMyWorkspace (TenantRequest) returns (TenantResponse);
+  rpc FindAllActive (TenantRequest) returns (TenantResponse);
+  rpc CreateTenant (TenantRequest) returns (TenantResponse);
+  rpc FindOneTenant (TenantRequest) returns (TenantResponse);
+  rpc UpdateTenant (TenantRequest) returns (TenantResponse);
+  rpc DeleteTenant (TenantRequest) returns (TenantResponse);
+}
+
+message TenantRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO বা বডি ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message TenantResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

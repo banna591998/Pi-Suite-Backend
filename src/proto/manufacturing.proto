@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package manufacturing;
+
+service ManufacturingServiceGrpc {
+  rpc CreateBom (ManufacturingRequest) returns (ManufacturingResponse);
+  rpc GetBoms (ManufacturingRequest) returns (ManufacturingResponse);
+  rpc CreateWorkOrder (ManufacturingRequest) returns (ManufacturingResponse);
+  rpc UpdateWorkOrderStatus (ManufacturingRequest) returns (ManufacturingResponse);
+}
+
+message ManufacturingRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message ManufacturingResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package inventory;
+
+service InventoryServiceGrpc {
+  rpc CreateItem (InventoryRequest) returns (InventoryResponse);
+  rpc FindAllItems (InventoryRequest) returns (InventoryResponse);
+  rpc GetReorderAlerts (InventoryRequest) returns (InventoryResponse);
+  rpc UpdateItem (InventoryRequest) returns (InventoryResponse);
+  rpc RemoveItem (InventoryRequest) returns (InventoryResponse);
+}
+
+message InventoryRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message InventoryResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

@@ -1,105 +1,191 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  Inject,
-  BadRequestException,
-  Req,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { RoleService } from './role.service';
-import {
-  createRoleSchema,
-  updateRoleSchema,
-  type CreateRoleDto,
-  type UpdateRoleDto,
-} from './role.dto';
-import { AuthGuard } from 'src/common/guards/auth-rbac.guard';
+import { createRoleSchema, updateRoleSchema } from './role.dto';
+import { status } from '@grpc/grpc-js';
 
-@Controller('roles')
+@Controller()
 export class RoleController {
   constructor(@Inject(RoleService) private readonly roleService: RoleService) {}
 
-  @Post()
-  @UseGuards(AuthGuard)
-  async create(@Req() req: any, @Body() body: CreateRoleDto) {
-    const tenantId = req.user?.tenantId || body.tenantId;
-    const payload = { ...body, tenantId };
+  @GrpcMethod('RoleServiceGrpc', 'CreateRole')
+  async createRole(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const body = JSON.parse(data.payloadJson || '{}');
+      const tenantId = data.tenantId || body.tenantId;
+      const payload = { ...body, tenantId };
 
-    const validationResult = createRoleSchema.safeParse(payload);
-    if (!validationResult.success) {
-      throw new BadRequestException(validationResult.error.format());
+      const validationResult = createRoleSchema.safeParse(payload);
+      if (!validationResult.success) {
+        throw new Error(JSON.stringify(validationResult.error.format()));
+      }
+
+      const result = await this.roleService.createRole(
+        tenantId,
+        validationResult.data,
+      );
+      return {
+        success: true,
+        message: 'Role created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateRole Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while creating role',
+      });
     }
-
-    return await this.roleService.createRole(tenantId, validationResult.data);
   }
 
-  // ১. স্ট্যাটিক রুটগুলোকে সবসময় ডায়নামিক রুট (:id) এর উপরে রাখতে হবে
-  @Get('enums/list')
-  @UseGuards(AuthGuard)
+  @GrpcMethod('RoleServiceGrpc', 'GetEnterpriseRoleEnums')
   async getEnterpriseRoleEnums() {
-    return await this.roleService.getEnterpriseRoleEnums();
-  }
-
-  @Get('permissions/list')
-  @UseGuards(AuthGuard)
-  async getAllPermissions() {
-    return await this.roleService.getAllPermissions();
-  }
-
-  // এমপ্লয়ি বা ইউজারকে রোল অ্যাসাইন করার রুট
-  @Post('assign-user')
-  @UseGuards(AuthGuard)
-  async assignRoleToUser(@Req() req: any, @Body() body: any) {
-    const tenantId = req.user?.tenantId;
-    return await this.roleService.assignRoleToUser({ ...body, tenantId });
-  }
-
-  @Get()
-  @UseGuards(AuthGuard)
-  async findAll(@Req() req: any) {
-    const tenantId = req.user?.tenantId;
-    return await this.roleService.getAllRoles(tenantId);
-  }
-
-  // ২. ডায়নামিক রুট (:id) নিচে থাকবে
-  @Get(':id')
-  @UseGuards(AuthGuard)
-  async findOne(@Req() req: any, @Param('id') id: string) {
-    const tenantId = req.user?.tenantId;
-    return await this.roleService.getRoleById(id, tenantId);
-  }
-
-  @Put(':id')
-  @UseGuards(AuthGuard)
-  async update(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body() body: UpdateRoleDto,
-  ) {
-    const tenantId = req.user?.tenantId;
-    const payload = { ...body, tenantId };
-
-    const validationResult = updateRoleSchema.safeParse(payload);
-    if (!validationResult.success) {
-      throw new BadRequestException(validationResult.error.format());
+    try {
+      const result = await this.roleService.getEnterpriseRoleEnums();
+      return {
+        success: true,
+        message: 'Enterprise role enums fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetEnterpriseRoleEnums Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching role enums',
+      });
     }
-
-    return await this.roleService.updateRole(
-      id,
-      tenantId,
-      validationResult.data,
-    );
   }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard)
-  async remove(@Req() req: any, @Param('id') id: string) {
-    const tenantId = req.user?.tenantId;
-    return await this.roleService.deleteRole(id, tenantId);
+  @GrpcMethod('RoleServiceGrpc', 'GetAllPermissions')
+  async getAllPermissions() {
+    try {
+      const result = await this.roleService.getAllPermissions();
+      return {
+        success: true,
+        message: 'All permissions fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetAllPermissions Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching permissions',
+      });
+    }
+  }
+
+  @GrpcMethod('RoleServiceGrpc', 'AssignRoleToUser')
+  async assignRoleToUser(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const body = JSON.parse(data.payloadJson || '{}');
+      const tenantId = data.tenantId || body.tenantId;
+      const result = await this.roleService.assignRoleToUser({
+        ...body,
+        tenantId,
+      });
+      return {
+        success: true,
+        message: 'Role assigned to user successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC AssignRoleToUser Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while assigning role to user',
+      });
+    }
+  }
+
+  @GrpcMethod('RoleServiceGrpc', 'FindAllRoles')
+  async findAllRoles(data: { tenantId: string }) {
+    try {
+      const result = await this.roleService.getAllRoles(data.tenantId);
+      return {
+        success: true,
+        message: 'Roles fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindAllRoles Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while fetching roles',
+      });
+    }
+  }
+
+  @GrpcMethod('RoleServiceGrpc', 'FindOneRole')
+  async findOneRole(data: { tenantId: string; id: string }) {
+    try {
+      const result = await this.roleService.getRoleById(data.id, data.tenantId);
+      return {
+        success: true,
+        message: 'Role fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindOneRole Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while fetching role',
+      });
+    }
+  }
+
+  @GrpcMethod('RoleServiceGrpc', 'UpdateRole')
+  async updateRole(data: {
+    tenantId: string;
+    id: string;
+    payloadJson: string;
+  }) {
+    try {
+      const body = JSON.parse(data.payloadJson || '{}');
+      const tenantId = data.tenantId || body.tenantId;
+      const payload = { ...body, tenantId };
+
+      const validationResult = updateRoleSchema.safeParse(payload);
+      if (!validationResult.success) {
+        throw new Error(JSON.stringify(validationResult.error.format()));
+      }
+
+      const result = await this.roleService.updateRole(
+        data.id,
+        tenantId,
+        validationResult.data,
+      );
+      return {
+        success: true,
+        message: 'Role updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateRole Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while updating role',
+      });
+    }
+  }
+
+  @GrpcMethod('RoleServiceGrpc', 'RemoveRole')
+  async removeRole(data: { tenantId: string; id: string }) {
+    try {
+      const result = await this.roleService.deleteRole(data.id, data.tenantId);
+      return {
+        success: true,
+        message: 'Role deleted successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RemoveRole Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while deleting role',
+      });
+    }
   }
 }

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package role;
+
+service RoleServiceGrpc {
+  rpc CreateRole (RoleRequest) returns (RoleResponse);
+  rpc GetEnterpriseRoleEnums (RoleRequest) returns (RoleResponse);
+  rpc GetAllPermissions (RoleRequest) returns (RoleResponse);
+  rpc AssignRoleToUser (RoleRequest) returns (RoleResponse);
+  rpc FindAllRoles (RoleRequest) returns (RoleResponse);
+  rpc FindOneRole (RoleRequest) returns (RoleResponse);
+  rpc UpdateRole (RoleRequest) returns (RoleResponse);
+  rpc RemoveRole (RoleRequest) returns (RoleResponse);
+}
+
+message RoleRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO বা বডি ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message RoleResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

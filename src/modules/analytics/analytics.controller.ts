@@ -1,75 +1,173 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  UsePipes,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { AnalyticsService } from './analytics.service';
-import {
-  type InventoryTurnoverDto,
-  type OtifMetricDto,
-  type BottleneckDto,
-  type CustomReportDto,
-  type inventoryTurnoverSchema,
-  type otifMetricSchema,
-  type bottleneckSchema,
-  type customReportSchema,
-} from './analytics.dto';
+import { status } from '@grpc/grpc-js';
 
-@Controller('analytics')
+@Controller()
 export class AnalyticsController {
   constructor(
     @Inject(AnalyticsService)
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  @Post('turnover')
-  async trackTurnover(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: InventoryTurnoverDto,
-  ) {
-    return this.analyticsService.trackInventoryTurnover(tenantId, dto);
+  @GrpcMethod('AnalyticsServiceGrpc', 'TrackInventoryTurnover')
+  async trackInventoryTurnover(data: {
+    tenantId: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.analyticsService.trackInventoryTurnover(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Inventory turnover tracked successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC TrackInventoryTurnover Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error during inventory turnover tracking',
+      });
+    }
   }
 
-  @Get('turnover')
-  async getTurnoverDashboard(@Query('tenantId') tenantId: string) {
-    return this.analyticsService.getTurnoverDashboard(tenantId);
+  @GrpcMethod('AnalyticsServiceGrpc', 'GetTurnoverDashboard')
+  async getTurnoverDashboard(data: { tenantId: string }) {
+    try {
+      const result = await this.analyticsService.getTurnoverDashboard(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Turnover dashboard fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetTurnoverDashboard Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching turnover dashboard',
+      });
+    }
   }
 
-  @Post('otif')
-  async recordOtif(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: OtifMetricDto,
-  ) {
-    return this.analyticsService.calculateOtif(tenantId, dto);
+  @GrpcMethod('AnalyticsServiceGrpc', 'RecordOtif')
+  async recordOtif(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.analyticsService.calculateOtif(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'OTIF metric recorded successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RecordOtif Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while recording OTIF',
+      });
+    }
   }
 
-  @Post('bottlenecks')
-  async recordBottleneck(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: BottleneckDto,
-  ) {
-    return this.analyticsService.detectBottleneck(tenantId, dto);
+  @GrpcMethod('AnalyticsServiceGrpc', 'RecordBottleneck')
+  async recordBottleneck(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.analyticsService.detectBottleneck(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Bottleneck recorded successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RecordBottleneck Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while recording bottleneck',
+      });
+    }
   }
 
-  @Get('bottlenecks')
-  async getBottlenecks(@Query('tenantId') tenantId: string) {
-    return this.analyticsService.getBottlenecksList(tenantId);
+  @GrpcMethod('AnalyticsServiceGrpc', 'GetBottlenecksList')
+  async getBottlenecksList(data: { tenantId: string }) {
+    try {
+      const result = await this.analyticsService.getBottlenecksList(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Bottlenecks list fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetBottlenecksList Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching bottlenecks list',
+      });
+    }
   }
 
-  @Post('reports/custom')
-  async createCustomReport(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: CustomReportDto,
-  ) {
-    return this.analyticsService.generateCustomReport(tenantId, dto);
+  @GrpcMethod('AnalyticsServiceGrpc', 'CreateCustomReport')
+  async createCustomReport(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.analyticsService.generateCustomReport(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Custom report generated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateCustomReport Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating custom report',
+      });
+    }
   }
 
-  @Get('executive-kpis')
-  async getExecutiveKpis(@Query('tenantId') tenantId: string) {
-    return this.analyticsService.getExecutiveKpis(tenantId);
+  @GrpcMethod('AnalyticsServiceGrpc', 'GetExecutiveKpis')
+  async getExecutiveKpis(data: { tenantId: string }) {
+    try {
+      const result = await this.analyticsService.getExecutiveKpis(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Executive KPIs fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetExecutiveKpis Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching executive KPIs',
+      });
+    }
   }
 }

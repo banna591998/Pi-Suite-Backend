@@ -1,152 +1,229 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  Query,
-  UseGuards,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { WarehouseService } from './warehouse.service';
-import {
-  type CreateWarehouseDto,
-  type CreateZoneDto,
-  type UpdateWarehouseDto,
-  type MasterPlanDto,
-  type DemandForecastDto,
-  type MaterialRequirementDto,
-  type CapacityPlanDto,
-} from './dto/warehouse.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { status } from '@grpc/grpc-js';
 
-@Controller('warehouses')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller()
 export class WarehouseController {
   constructor(
     @Inject(WarehouseService)
     private readonly warehouseService: WarehouseService,
   ) {}
 
-  @Post()
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async create(
-    @Body() dto: CreateWarehouseDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.create(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'CreateWarehouse')
+  async create(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.create(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Warehouse created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateWarehouse Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating warehouse',
+      });
+    }
   }
 
-  @Post('zones')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async createZone(
-    @Body() dto: CreateZoneDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.addZone(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'CreateZone')
+  async createZone(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.addZone(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Warehouse zone added successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateZone Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while adding zone',
+      });
+    }
   }
 
-  @Post('master-planning')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async runMasterPlan(
-    @Body() dto: MasterPlanDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.runMasterPlanning(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'RunMasterPlan')
+  async runMasterPlan(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.runMasterPlanning(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Master planning executed successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RunMasterPlan Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error during master planning',
+      });
+    }
   }
 
-  @Post('demand-forecast')
-  @Roles(EnterpriseRole.SUPER_ADMIN, EnterpriseRole.TENANT_ADMIN)
-  async createForecast(
-    @Body() dto: DemandForecastDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.createDemandForecast(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'CreateForecast')
+  async createForecast(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.createDemandForecast(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Demand forecast created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateForecast Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while creating demand forecast',
+      });
+    }
   }
 
-  @Post('material-requirements')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async calculateMrp(
-    @Body() dto: MaterialRequirementDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.calculateMaterialRequirements(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'CalculateMrp')
+  async calculateMrp(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.calculateMaterialRequirements(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Material requirements calculated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CalculateMrp Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while calculating material requirements',
+      });
+    }
   }
 
-  @Post('capacity-planning')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async optimizeCapacity(
-    @Body() dto: CapacityPlanDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.warehouseService.optimizeCapacity(tenantId, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'OptimizeCapacity')
+  async optimizeCapacity(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.optimizeCapacity(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Capacity optimized successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC OptimizeCapacity Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while optimizing capacity',
+      });
+    }
   }
 
-  @Get()
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.WMS_SUPERVISOR,
-  )
-  async findAll(@Query('tenantId') tenantId: string) {
-    return this.warehouseService.findAll(tenantId);
+  @GrpcMethod('WarehouseServiceGrpc', 'FindAllWarehouses')
+  async findAll(data: { tenantId: string }) {
+    try {
+      const result = await this.warehouseService.findAll(data.tenantId);
+      return {
+        success: true,
+        message: 'Warehouses fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindAllWarehouses Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching warehouses',
+      });
+    }
   }
 
-  @Get(':id')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.INVENTORY_CLERK,
-    EnterpriseRole.WMS_SUPERVISOR,
-  )
-  async findOne(@Query('tenantId') tenantId: string, @Param('id') id: string) {
-    return this.warehouseService.findOne(tenantId, id);
+  @GrpcMethod('WarehouseServiceGrpc', 'FindOneWarehouse')
+  async findOne(data: { tenantId: string; id: string }) {
+    try {
+      const result = await this.warehouseService.findOne(
+        data.tenantId,
+        data.id,
+      );
+      return {
+        success: true,
+        message: 'Warehouse fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindOneWarehouse Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching warehouse',
+      });
+    }
   }
 
-  @Put(':id')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async update(
-    @Query('tenantId') tenantId: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateWarehouseDto,
-  ) {
-    return this.warehouseService.update(tenantId, id, dto);
+  @GrpcMethod('WarehouseServiceGrpc', 'UpdateWarehouse')
+  async update(data: { tenantId: string; id: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.warehouseService.update(
+        data.tenantId,
+        data.id,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Warehouse updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateWarehouse Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while updating warehouse',
+      });
+    }
   }
 
-  @Delete(':id')
-  @Roles(EnterpriseRole.SUPER_ADMIN, EnterpriseRole.TENANT_ADMIN)
-  async remove(@Query('tenantId') tenantId: string, @Param('id') id: string) {
-    return this.warehouseService.remove(tenantId, id);
+  @GrpcMethod('WarehouseServiceGrpc', 'RemoveWarehouse')
+  async remove(data: { tenantId: string; id: string }) {
+    try {
+      const result = await this.warehouseService.remove(data.tenantId, data.id);
+      return {
+        success: true,
+        message: 'Warehouse removed successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RemoveWarehouse Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while removing warehouse',
+      });
+    }
   }
 }

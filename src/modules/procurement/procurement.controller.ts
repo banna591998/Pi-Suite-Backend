@@ -1,95 +1,126 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  UseGuards,
-  UsePipes,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { ProcurementService } from './procurement.service';
-import {
-  type CreateRfqSchema,
-  type CreatePoSchema,
-  type ThreeWayMatchSchema,
-  type CreateVendorDto,
-  type CreateRfqDto,
-  type CreatePoDto,
-  type ThreeWayMatchDto,
-} from './dto/procurement.dto';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { status } from '@grpc/grpc-js';
 
-@Controller('procurement')
-@UseGuards(RolesGuard)
+@Controller()
 export class ProcurementController {
   constructor(
     @Inject(ProcurementService)
     private readonly procurementService: ProcurementService,
   ) {}
 
-  @Post('vendors')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async onboardVendor(
-    @Body() dto: CreateVendorDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.procurementService.onboardVendor(tenantId, dto);
+  @GrpcMethod('ProcurementServiceGrpc', 'OnboardVendor')
+  async onboardVendor(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.procurementService.onboardVendor(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Vendor onboarded successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC OnboardVendor Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while onboarding vendor',
+      });
+    }
   }
 
-  @Get('vendors')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async getVendors(@Query('tenantId') tenantId: string) {
-    return this.procurementService.getVendors(tenantId);
+  @GrpcMethod('ProcurementServiceGrpc', 'GetVendors')
+  async getVendors(data: { tenantId: string }) {
+    try {
+      const result = await this.procurementService.getVendors(data.tenantId);
+      return {
+        success: true,
+        message: 'Vendors fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetVendors Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching vendors',
+      });
+    }
   }
 
-  @Post('rfq')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async sendRfq(
-    @Body() dto: CreateRfqDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.procurementService.sendAutomatedRfq(tenantId, dto);
+  @GrpcMethod('ProcurementServiceGrpc', 'SendAutomatedRfq')
+  async sendAutomatedRfq(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.procurementService.sendAutomatedRfq(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'RFQ sent successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC SendAutomatedRfq Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while sending RFQ',
+      });
+    }
   }
 
-  @Post('po')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async createPo(
-    @Body() dto: CreatePoDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.procurementService.createPurchaseOrder(tenantId, dto);
+  @GrpcMethod('ProcurementServiceGrpc', 'CreatePurchaseOrder')
+  async createPurchaseOrder(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.procurementService.createPurchaseOrder(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Purchase order created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreatePurchaseOrder Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while creating purchase order',
+      });
+    }
   }
 
-  @Post('three-way-match')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.FINANCE_CONTROLLER,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async threeWayMatch(
-    @Body() dto: ThreeWayMatchDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.procurementService.performThreeWayMatching(tenantId, dto);
+  @GrpcMethod('ProcurementServiceGrpc', 'PerformThreeWayMatching')
+  async performThreeWayMatching(data: {
+    tenantId: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.procurementService.performThreeWayMatching(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Three-way matching performed successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC PerformThreeWayMatching Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error during three-way matching',
+      });
+    }
   }
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package security;
+
+service SecurityServiceGrpc {
+  rpc CreateAuditLog (SecurityRequest) returns (SecurityResponse);
+  rpc GetAuditLogs (SecurityRequest) returns (SecurityResponse);
+  rpc AssignRbacRole (SecurityRequest) returns (SecurityResponse);
+  rpc RecordUptime (SecurityRequest) returns (SecurityResponse);
+  rpc GetUptimeDashboard (SecurityRequest) returns (SecurityResponse);
+  rpc TriggerGdprErasure (SecurityRequest) returns (SecurityResponse);
+}
+
+message SecurityRequest {
+  string tenantId = 1;
+  string customerId = 2;
+  string payloadJson = 3; // DTO বা বডি ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message SecurityResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

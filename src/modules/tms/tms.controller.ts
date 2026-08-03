@@ -1,93 +1,120 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Query,
-  UseGuards,
-  UsePipes,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { TmsService } from './tms.service';
-import {
-  type CreateVehicleDto,
-  type CreateShipmentDto,
-  type UpdateVehicleLocationDto,
-  type VerifyPoDDto,
-} from './dto/tms.dto';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
+import { status } from '@grpc/grpc-js';
 
-@Controller('tms')
-@UseGuards(RolesGuard)
+@Controller()
 export class TmsController {
   constructor(@Inject(TmsService) private readonly tmsService: TmsService) {}
 
-  @Post('vehicles')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.TMS_MANAGER,
-  )
-  async registerVehicle(
-    @Body() dto: CreateVehicleDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.tmsService.registerVehicle(tenantId, dto);
+  @GrpcMethod('TmsServiceGrpc', 'RegisterVehicle')
+  async registerVehicle(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.tmsService.registerVehicle(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Vehicle registered successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RegisterVehicle Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while registering vehicle',
+      });
+    }
   }
 
-  @Get('vehicles')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.TMS_MANAGER,
-  )
-  async getVehicles(@Query('tenantId') tenantId: string) {
-    return this.tmsService.getAllVehicles(tenantId);
+  @GrpcMethod('TmsServiceGrpc', 'GetVehicles')
+  async getVehicles(data: { tenantId: string }) {
+    try {
+      const result = await this.tmsService.getAllVehicles(data.tenantId);
+      return {
+        success: true,
+        message: 'Vehicles fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetVehicles Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching vehicles',
+      });
+    }
   }
 
-  @Put('vehicles/:id/location')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.TMS_MANAGER,
-  )
-  async updateLocation(
-    @Query('tenantId') tenantId: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateVehicleLocationDto,
-  ) {
-    return this.tmsService.trackVehicle(tenantId, id, dto);
+  @GrpcMethod('TmsServiceGrpc', 'UpdateVehicleLocation')
+  async updateLocation(data: {
+    tenantId: string;
+    id: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.tmsService.trackVehicle(
+        data.tenantId,
+        data.id,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Vehicle location updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateVehicleLocation Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while updating vehicle location',
+      });
+    }
   }
 
-  @Post('shipments')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.TMS_MANAGER,
-  )
-  async createShipment(
-    @Body() dto: CreateShipmentDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.tmsService.createShipment(tenantId, dto);
+  @GrpcMethod('TmsServiceGrpc', 'CreateShipment')
+  async createShipment(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.tmsService.createShipment(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Shipment created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateShipment Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating shipment',
+      });
+    }
   }
 
-  @Post('shipments/:id/pod')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.TMS_MANAGER,
-    EnterpriseRole.INVENTORY_CLERK,
-  )
-  async verifyPoD(
-    @Query('tenantId') tenantId: string,
-    @Param('id') id: string,
-    @Body() dto: VerifyPoDDto,
-  ) {
-    return this.tmsService.verifyAndCompletePoD(tenantId, id, dto);
+  @GrpcMethod('TmsServiceGrpc', 'VerifyPoD')
+  async verifyPoD(data: { tenantId: string; id: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.tmsService.verifyAndCompletePoD(
+        data.tenantId,
+        data.id,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'PoD verified successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC VerifyPoD Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while verifying PoD',
+      });
+    }
   }
 }

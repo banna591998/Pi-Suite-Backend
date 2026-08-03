@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package procurement;
+
+service ProcurementServiceGrpc {
+  rpc OnboardVendor (ProcurementRequest) returns (ProcurementResponse);
+  rpc GetVendors (ProcurementRequest) returns (ProcurementResponse);
+  rpc SendAutomatedRfq (ProcurementRequest) returns (ProcurementResponse);
+  rpc CreatePurchaseOrder (ProcurementRequest) returns (ProcurementResponse);
+  rpc PerformThreeWayMatching (ProcurementRequest) returns (ProcurementResponse);
+}
+
+message ProcurementRequest {
+  string tenantId = 1;
+  string payloadJson = 2; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message ProcurementResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package warehouse;
+
+service WarehouseServiceGrpc {
+  rpc CreateWarehouse (WarehouseRequest) returns (WarehouseResponse);
+  rpc CreateZone (WarehouseRequest) returns (WarehouseResponse);
+  rpc RunMasterPlan (WarehouseRequest) returns (WarehouseResponse);
+  rpc CreateForecast (WarehouseRequest) returns (WarehouseResponse);
+  rpc CalculateMrp (WarehouseRequest) returns (WarehouseResponse);
+  rpc OptimizeCapacity (WarehouseRequest) returns (WarehouseResponse);
+  rpc FindAllWarehouses (WarehouseRequest) returns (WarehouseResponse);
+  rpc FindOneWarehouse (WarehouseRequest) returns (WarehouseResponse);
+  rpc UpdateWarehouse (WarehouseRequest) returns (WarehouseResponse);
+  rpc RemoveWarehouse (WarehouseRequest) returns (WarehouseResponse);
+}
+
+message WarehouseRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message WarehouseResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

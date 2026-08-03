@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package tms;
+
+service TmsServiceGrpc {
+  rpc RegisterVehicle (TmsRequest) returns (TmsResponse);
+  rpc GetVehicles (TmsRequest) returns (TmsResponse);
+  rpc UpdateVehicleLocation (TmsRequest) returns (TmsResponse);
+  rpc CreateShipment (TmsRequest) returns (TmsResponse);
+  rpc VerifyPoD (TmsRequest) returns (TmsResponse);
+}
+
+message TmsRequest {
+  string tenantId = 1;
+  string id = 2;
+  string payloadJson = 3; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message TmsResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

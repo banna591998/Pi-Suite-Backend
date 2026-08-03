@@ -1,59 +1,131 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Param,
-  UsePipes,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { SecurityService } from './security.service';
-import {
-  type AuditLogDto,
-  type RbacAssignmentDto,
-  type UptimeRecordDto,
-  auditLogSchema,
-  rbacAssignmentSchema,
-  uptimeRecordSchema,
-} from './security.dto';
+import { status } from '@grpc/grpc-js';
 
-@Controller('security')
+@Controller()
 export class SecurityController {
   constructor(private readonly securityService: SecurityService) {}
 
-  @Post('audit-logs')
-  async createAuditLog(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: AuditLogDto,
-  ) {
-    return this.securityService.logActivity(tenantId, dto);
+  @GrpcMethod('SecurityServiceGrpc', 'CreateAuditLog')
+  async createAuditLog(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.securityService.logActivity(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Audit log created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateAuditLog Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating audit log',
+      });
+    }
   }
 
-  @Get('audit-logs')
-  async getAuditLogs(@Query('tenantId') tenantId: string) {
-    return this.securityService.getTenantAuditLogs(tenantId);
+  @GrpcMethod('SecurityServiceGrpc', 'GetAuditLogs')
+  async getAuditLogs(data: { tenantId: string }) {
+    try {
+      const result = await this.securityService.getTenantAuditLogs(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Audit logs fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetAuditLogs Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching audit logs',
+      });
+    }
   }
 
-  @Post('rbac/assign')
-  async assignRbacRole(@Body() dto: RbacAssignmentDto) {
-    return this.securityService.assignRoleWithRBAC(dto);
+  @GrpcMethod('SecurityServiceGrpc', 'AssignRbacRole')
+  async assignRbacRole(data: { payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.securityService.assignRoleWithRBAC(dto);
+      return {
+        success: true,
+        message: 'RBAC role assigned successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC AssignRbacRole Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while assigning RBAC role',
+      });
+    }
   }
 
-  @Post('uptime-metrics')
-  async recordUptime(@Body() dto: UptimeRecordDto) {
-    return this.securityService.recordUptime(dto);
+  @GrpcMethod('SecurityServiceGrpc', 'RecordUptime')
+  async recordUptime(data: { payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.securityService.recordUptime(dto);
+      return {
+        success: true,
+        message: 'Uptime recorded successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RecordUptime Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while recording uptime',
+      });
+    }
   }
 
-  @Get('uptime-dashboard')
+  @GrpcMethod('SecurityServiceGrpc', 'GetUptimeDashboard')
   async getUptimeDashboard() {
-    return this.securityService.getUptimeDashboard();
+    try {
+      const result = await this.securityService.getUptimeDashboard();
+      return {
+        success: true,
+        message: 'Uptime dashboard fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetUptimeDashboard Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching uptime dashboard',
+      });
+    }
   }
 
-  @Post('gdpr/erasure')
-  async triggerGdprErasure(
-    @Query('tenantId') tenantId: string,
-    @Query('customerId') customerId: string,
-  ) {
-    return this.securityService.executeGdprErasure(tenantId, customerId);
+  @GrpcMethod('SecurityServiceGrpc', 'TriggerGdprErasure')
+  async triggerGdprErasure(data: { tenantId: string; customerId: string }) {
+    try {
+      const result = await this.securityService.executeGdprErasure(
+        data.tenantId,
+        data.customerId,
+      );
+      return {
+        success: true,
+        message: 'GDPR erasure triggered successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC TriggerGdprErasure Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error during GDPR erasure',
+      });
+    }
   }
 }

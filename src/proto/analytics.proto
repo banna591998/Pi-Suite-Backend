@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package analytics;
+
+service AnalyticsServiceGrpc {
+  rpc TrackInventoryTurnover (TrackTurnoverRequest) returns (AnalyticsResponse);
+  rpc GetTurnoverDashboard (TenantIdRequest) returns (AnalyticsResponse);
+  rpc RecordOtif (RecordOtifRequest) returns (AnalyticsResponse);
+  rpc RecordBottleneck (RecordBottleneckRequest) returns (AnalyticsResponse);
+  rpc GetBottlenecksList (TenantIdRequest) returns (AnalyticsResponse);
+  rpc CreateCustomReport (CreateCustomReportRequest) returns (AnalyticsResponse);
+  rpc GetExecutiveKpis (TenantIdRequest) returns (AnalyticsResponse);
+}
+
+message TenantIdRequest {
+  string tenantId = 1;
+}
+
+message TrackTurnoverRequest {
+  string tenantId = 1;
+  string payloadJson = 2; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করার জন্য
+}
+
+message RecordOtifRequest {
+  string tenantId = 1;
+  string payloadJson = 2;
+}
+
+message RecordBottleneckRequest {
+  string tenantId = 1;
+  string payloadJson = 2;
+}
+
+message CreateCustomReportRequest {
+  string tenantId = 1;
+  string payloadJson = 2;
+}
+
+message AnalyticsResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রিটার্ন করতে
+}

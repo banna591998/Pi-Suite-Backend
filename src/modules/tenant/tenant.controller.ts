@@ -1,60 +1,140 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  UsePipes,
-  Inject,
-  Req,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { TenantService } from './tenant.service';
-import {
-  createTenantSchema,
-  updateTenantSchema,
-  type CreateTenantDto,
-  type UpdateTenantDto,
-} from './dto/tenant.dto';
-import { AuthGuard } from 'src/common/guards/auth-rbac.guard';
+import { createTenantSchema, updateTenantSchema } from './dto/tenant.dto';
+import { status } from '@grpc/grpc-js';
 
-@Controller('tenants')
-@UseGuards(AuthGuard)
+@Controller()
 export class TenantController {
   constructor(
     @Inject(TenantService) private readonly tenantService: TenantService,
   ) {}
-  @Get('my-workspace')
-  async getMyWorkspace(@Req() req: any) {
-    const tenantId = req.user.tenantId; // AuthGuard থেকে টেনেন্ট আইডি পাওয়া যাবে
-    return await this.tenantService.getTenantById(tenantId);
+
+  @GrpcMethod('TenantServiceGrpc', 'GetMyWorkspace')
+  async getMyWorkspace(data: { tenantId: string }) {
+    try {
+      const result = await this.tenantService.getTenantById(data.tenantId);
+      return {
+        success: true,
+        message: 'Workspace fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetMyWorkspace Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while fetching workspace',
+      });
+    }
   }
-  @Get()
+
+  @GrpcMethod('TenantServiceGrpc', 'FindAllActive')
   async findAllActive() {
-    return await this.tenantService.getAllActiveTenants();
-  }
-  @Post()
-  async create(@Body() body: CreateTenantDto) {
-    return await this.tenantService.createTenant(body);
+    try {
+      const result = await this.tenantService.getAllActiveTenants();
+      return {
+        success: true,
+        message: 'Active tenants fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindAllActive Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching active tenants',
+      });
+    }
   }
 
-  @Get(':id')
-  @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
-    return await this.tenantService.getTenantById(id);
+  @GrpcMethod('TenantServiceGrpc', 'CreateTenant')
+  async createTenant(data: { payloadJson: string }) {
+    try {
+      const body = JSON.parse(data.payloadJson || '{}');
+      const validationResult = createTenantSchema.safeParse(body);
+      if (!validationResult.success) {
+        throw new Error(JSON.stringify(validationResult.error.format()));
+      }
+
+      const result = await this.tenantService.createTenant(
+        validationResult.data,
+      );
+      return {
+        success: true,
+        message: 'Tenant created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateTenant Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while creating tenant',
+      });
+    }
   }
 
-  @Put(':id')
-  @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() body: UpdateTenantDto) {
-    return await this.tenantService.updateTenant(id, body);
+  @GrpcMethod('TenantServiceGrpc', 'FindOneTenant')
+  async findOneTenant(data: { id: string }) {
+    try {
+      const result = await this.tenantService.getTenantById(data.id);
+      return {
+        success: true,
+        message: 'Tenant fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindOneTenant Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while fetching tenant',
+      });
+    }
   }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string) {
-    return await this.tenantService.deleteTenant(id);
+  @GrpcMethod('TenantServiceGrpc', 'UpdateTenant')
+  async updateTenant(data: { id: string; payloadJson: string }) {
+    try {
+      const body = JSON.parse(data.payloadJson || '{}');
+      const validationResult = updateTenantSchema.safeParse(body);
+      if (!validationResult.success) {
+        throw new Error(JSON.stringify(validationResult.error.format()));
+      }
+
+      const result = await this.tenantService.updateTenant(
+        data.id,
+        validationResult.data,
+      );
+      return {
+        success: true,
+        message: 'Tenant updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateTenant Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while updating tenant',
+      });
+    }
+  }
+
+  @GrpcMethod('TenantServiceGrpc', 'DeleteTenant')
+  async deleteTenant(data: { id: string }) {
+    try {
+      const result = await this.tenantService.deleteTenant(data.id);
+      return {
+        success: true,
+        message: 'Tenant deleted successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC DeleteTenant Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while deleting tenant',
+      });
+    }
   }
 }

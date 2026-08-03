@@ -1,88 +1,127 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { InventoryService } from './inventory.service';
-import {
-  type CreateInventoryDto,
-  type UpdateInventoryDto,
-} from './dto/inventory.dto';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
+import { status } from '@grpc/grpc-js';
 
-@Controller('inventory')
-@UseGuards(RolesGuard)
+@Controller()
 export class InventoryController {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    @Inject(InventoryService)
+    private readonly inventoryService: InventoryService,
+  ) {}
 
-  @Post()
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.INVENTORY_CLERK,
-  )
-  async create(
-    @Body() dto: CreateInventoryDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.inventoryService.createItem(tenantId, dto);
+  @GrpcMethod('InventoryServiceGrpc', 'CreateItem')
+  async createItem(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.inventoryService.createItem(data.tenantId, dto);
+      return {
+        success: true,
+        message: 'Inventory item created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateItem Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while creating inventory item',
+      });
+    }
   }
 
-  @Get()
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.INVENTORY_CLERK,
-    EnterpriseRole.SUPPLY_CHAIN_ANALYST,
-    EnterpriseRole.FINANCE_CONTROLLER,
-  )
-  async findAll(@Query('tenantId') tenantId: string) {
-    return this.inventoryService.findAllItems(tenantId);
+  @GrpcMethod('InventoryServiceGrpc', 'FindAllItems')
+  async findAllItems(data: { tenantId: string }) {
+    try {
+      const result = await this.inventoryService.findAllItems(data.tenantId);
+      return {
+        success: true,
+        message: 'Inventory items fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC FindAllItems Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching inventory items',
+      });
+    }
   }
 
-  @Get('reorder-alerts')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.PROCUREMENT_OFFICER,
-  )
-  async getReorderAlerts(@Query('tenantId') tenantId: string) {
-    return this.inventoryService.getReorderAlerts(tenantId);
+  @GrpcMethod('InventoryServiceGrpc', 'GetReorderAlerts')
+  async getReorderAlerts(data: { tenantId: string }) {
+    try {
+      const result = await this.inventoryService.getReorderAlerts(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Reorder alerts fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetReorderAlerts Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching reorder alerts',
+      });
+    }
   }
 
-  @Put(':id')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.INVENTORY_CLERK,
-  )
-  async update(
-    @Query('tenantId') tenantId: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateInventoryDto,
-  ) {
-    return this.inventoryService.updateItem(tenantId, id, dto);
+  @GrpcMethod('InventoryServiceGrpc', 'UpdateItem')
+  async updateItem(data: {
+    tenantId: string;
+    id: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.inventoryService.updateItem(
+        data.tenantId,
+        data.id,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Inventory item updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateItem Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while updating inventory item',
+      });
+    }
   }
 
-  @Delete(':id')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async remove(@Query('tenantId') tenantId: string, @Param('id') id: string) {
-    return this.inventoryService.removeItem(tenantId, id);
+  @GrpcMethod('InventoryServiceGrpc', 'RemoveItem')
+  async removeItem(data: { tenantId: string; id: string }) {
+    try {
+      const result = await this.inventoryService.removeItem(
+        data.tenantId,
+        data.id,
+      );
+      return {
+        success: true,
+        message: 'Inventory item removed successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RemoveItem Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while removing inventory item',
+      });
+    }
   }
 }

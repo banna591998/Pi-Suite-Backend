@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package sales;
+
+service SalesServiceGrpc {
+  rpc CreateSalesOrder (SalesRequest) returns (SalesResponse);
+  rpc GenerateInvoice (SalesRequest) returns (SalesResponse);
+}
+
+message SalesRequest {
+  string tenantId = 1;
+  string orderId = 2;
+  string customerEmail = 3;
+  string customerName = 4;
+  string payloadJson = 5; // DTO ডেটা JSON স্ট্রিং হিসেবে পাস করতে
+}
+
+message SalesResponse {
+  bool success = 1;
+  string message = 2;
+  string dataJson = 3; // সার্ভিস থেকে আসা রেজাল্ট JSON আকারে রাখতে
+}

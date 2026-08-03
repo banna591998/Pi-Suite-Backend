@@ -1,59 +1,121 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  UsePipes,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { FinanceService } from './finance.service';
-import {
-  type CreateAssetDto,
-  type LandedCostDto,
-  type FinancialLedgerDto,
-  type createAssetSchema,
-  type landedCostSchema,
-  type financialLedgerSchema,
-} from './dto/finance.dto';
+import { status } from '@grpc/grpc-js';
 
-@Controller('finance')
+@Controller()
 export class FinanceController {
   constructor(
     @Inject(FinanceService) private readonly financeService: FinanceService,
   ) {}
 
-  @Post('assets')
-  async registerAsset(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: CreateAssetDto,
-  ) {
-    return this.financeService.registerAsset(tenantId, dto);
+  @GrpcMethod('FinanceServiceGrpc', 'RegisterAsset')
+  async registerAsset(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.financeService.registerAsset(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Asset registered successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC RegisterAsset Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error during asset registration',
+      });
+    }
   }
 
-  @Get('assets')
-  async getAssetsWithDepreciation(@Query('tenantId') tenantId: string) {
-    return this.financeService.getAllAssets(tenantId);
+  @GrpcMethod('FinanceServiceGrpc', 'GetAssetsWithDepreciation')
+  async getAssetsWithDepreciation(data: { tenantId: string }) {
+    try {
+      const result = await this.financeService.getAllAssets(data.tenantId);
+      return {
+        success: true,
+        message: 'Assets fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetAssetsWithDepreciation Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while fetching assets',
+      });
+    }
   }
 
-  @Post('landed-cost')
-  async calculateLandedCost(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: LandedCostDto,
-  ) {
-    return this.financeService.computeLandedCost(tenantId, dto);
+  @GrpcMethod('FinanceServiceGrpc', 'CalculateLandedCost')
+  async calculateLandedCost(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.financeService.computeLandedCost(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Landed cost calculated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CalculateLandedCost Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error during landed cost calculation',
+      });
+    }
   }
 
-  @Post('ledger')
-  async addLedgerEntry(
-    @Query('tenantId') tenantId: string,
-    @Body() dto: FinancialLedgerDto,
-  ) {
-    return this.financeService.recordTransaction(tenantId, dto);
+  @GrpcMethod('FinanceServiceGrpc', 'AddLedgerEntry')
+  async addLedgerEntry(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.financeService.recordTransaction(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Ledger entry added successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC AddLedgerEntry Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while adding ledger entry',
+      });
+    }
   }
 
-  @Get('ledger')
-  async getLedger(@Query('tenantId') tenantId: string) {
-    return this.financeService.getFinancialLedger(tenantId);
+  @GrpcMethod('FinanceServiceGrpc', 'GetLedger')
+  async getLedger(data: { tenantId: string }) {
+    try {
+      const result = await this.financeService.getFinancialLedger(
+        data.tenantId,
+      );
+      return {
+        success: true,
+        message: 'Financial ledger fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetLedger Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while fetching financial ledger',
+      });
+    }
   }
 }

@@ -1,80 +1,104 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Query,
-  UseGuards,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { ManufacturingService } from './manufacturing.service';
-import {
-  type CreateBomDto,
-  type CreateWorkOrderDto,
-  type UpdateWorkOrderStatusDto,
-} from './dto/manufacturing.dto';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { EnterpriseRole } from 'prisma/src/generated/prisma/enums';
+import { status } from '@grpc/grpc-js';
 
-@Controller('manufacturing')
-@UseGuards(RolesGuard)
+@Controller()
 export class ManufacturingController {
   constructor(
     @Inject(ManufacturingService)
     private readonly manufacturingService: ManufacturingService,
   ) {}
 
-  @Post('boms')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async createBom(
-    @Body() dto: CreateBomDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.manufacturingService.createBillOfMaterials(tenantId, dto);
+  @GrpcMethod('ManufacturingServiceGrpc', 'CreateBom')
+  async createBom(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.manufacturingService.createBillOfMaterials(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Bill of Materials created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateBom Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while creating BOM',
+      });
+    }
   }
 
-  @Get('boms')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async getBoms(@Query('tenantId') tenantId: string) {
-    return this.manufacturingService.getBoms(tenantId);
+  @GrpcMethod('ManufacturingServiceGrpc', 'GetBoms')
+  async getBoms(data: { tenantId: string }) {
+    try {
+      const result = await this.manufacturingService.getBoms(data.tenantId);
+      return {
+        success: true,
+        message: 'BOMs fetched successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC GetBoms Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error.message || 'Internal server error while fetching BOMs',
+      });
+    }
   }
 
-  @Post('work-orders')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-  )
-  async createWorkOrder(
-    @Body() dto: CreateWorkOrderDto,
-    @Query('tenantId') tenantId: string,
-  ) {
-    return this.manufacturingService.createWorkOrder(tenantId, dto);
+  @GrpcMethod('ManufacturingServiceGrpc', 'CreateWorkOrder')
+  async createWorkOrder(data: { tenantId: string; payloadJson: string }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.manufacturingService.createWorkOrder(
+        data.tenantId,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Work order created successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC CreateWorkOrder Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message || 'Internal server error while creating work order',
+      });
+    }
   }
 
-  @Put('work-orders/:id/status')
-  @Roles(
-    EnterpriseRole.SUPER_ADMIN,
-    EnterpriseRole.TENANT_ADMIN,
-    EnterpriseRole.WMS_MANAGER,
-    EnterpriseRole.STAFF,
-  )
-  async updateWorkOrderStatus(
-    @Query('tenantId') tenantId: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateWorkOrderStatusDto,
-  ) {
-    return this.manufacturingService.updateWorkOrderStatus(tenantId, id, dto);
+  @GrpcMethod('ManufacturingServiceGrpc', 'UpdateWorkOrderStatus')
+  async updateWorkOrderStatus(data: {
+    tenantId: string;
+    id: string;
+    payloadJson: string;
+  }) {
+    try {
+      const dto = JSON.parse(data.payloadJson || '{}');
+      const result = await this.manufacturingService.updateWorkOrderStatus(
+        data.tenantId,
+        data.id,
+        dto,
+      );
+      return {
+        success: true,
+        message: 'Work order status updated successfully',
+        dataJson: JSON.stringify(result),
+      };
+    } catch (error: any) {
+      console.error('gRPC UpdateWorkOrderStatus Error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message:
+          error.message ||
+          'Internal server error while updating work order status',
+      });
+    }
   }
 }
