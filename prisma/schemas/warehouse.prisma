@@ -1,0 +1,29 @@
+model Warehouse {
+    id         String   @id @default(uuid())
+    tenantId   String // Multi-Tenant Isolation
+    name       String
+    location   String
+    capacity3D Float? // Warehouse Capacity Optimization (Feature 15)
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    zones       WarehouseZone[]
+    inventories InventoryItem[]
+
+    @@index([tenantId])
+    @@index([tenantId, id])
+}
+
+model WarehouseZone {
+    id          String   @id @default(uuid())
+    warehouseId String
+    tenantId    String
+    zoneName    String // Zone-based Put-away (Feature 10)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    warehouse   Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+    inventories InventoryItem[]
+
+    @@index([tenantId, warehouseId])
+}

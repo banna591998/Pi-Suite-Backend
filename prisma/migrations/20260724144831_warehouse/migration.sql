@@ -1,0 +1,14 @@
+/*
+  Warnings:
+
+  - The values [SUPPLY_CHAIN_ANALYST] on the enum `EnterpriseRole` will be removed. If these variants are still used in the database, this will fail.
+
+*/
+-- AlterEnum
+BEGIN;
+CREATE TYPE "EnterpriseRole_new" AS ENUM ('SUPER_ADMIN', 'TENANT_ADMIN', 'ANALYTICS_MANAGER', 'AUTH_MANAGER', 'COLLABORATION_MANAGER', 'FINANCE_CONTROLLER', 'MANUFACTURING_MANAGER', 'INVENTORY_MANAGER', 'PAYMENT_CONTROLLER', 'PROCUREMENT_OFFICER', 'ROLES_MANAGER', 'SALES_MANAGER', 'SECURITY_AUDITOR', 'TENANT_MANAGER', 'TMS_MANAGER', 'WMS_MANAGER', 'SETTINGS_MANAGER', 'WMS_SUPERVISOR', 'INVENTORY_CLERK', 'VENDOR_REPRESENTATIVE', 'COMPLIANCE_AUDITOR', 'ADMIN', 'MANAGER', 'STAFF', 'EDITOR');
+ALTER TABLE "Role" ALTER COLUMN "name" TYPE "EnterpriseRole_new" USING ("name"::text::"EnterpriseRole_new");
+ALTER TYPE "EnterpriseRole" RENAME TO "EnterpriseRole_old";
+ALTER TYPE "EnterpriseRole_new" RENAME TO "EnterpriseRole";
+DROP TYPE "public"."EnterpriseRole_old";
+COMMIT;

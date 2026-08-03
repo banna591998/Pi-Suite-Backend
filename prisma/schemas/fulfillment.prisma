@@ -1,0 +1,53 @@
+model SalesOrder {
+    id           String       @id @default(uuid())
+    tenantId     String
+    orderNumber  String       @unique
+    channel      SalesChannel @default(ECOMMERCE)
+    customerName String
+    totalAmount  Float
+    isBackorder  Boolean      @default(false)
+    status       OrderStatus  @default(PENDING)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
+
+    orderItems OrderItem[]
+    invoices   Invoice[]
+
+    @@index([tenantId])
+    @@index([tenantId, orderNumber])
+    @@index([tenantId, status])
+}
+
+model OrderItem {
+    id          String @id @default(uuid())
+    orderId     String
+    productName String
+    quantity    Int
+    unitPrice   Price  @relation(fields: [priceId], references: [id]) // Mock or direct relation
+    priceId     String
+
+    order SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Price {
+    id          String      @id @default(uuid())
+    productName String
+    amount      Float
+    orderItems  OrderItem[]
+}
+
+model Invoice {
+    id             String     @id @default(uuid())
+    tenantId       String
+    invoiceNumber  String     @unique
+    orderId        String
+    taxAmount      Float
+    discountAmount Float      @default(0.0)
+    netAmount      Float
+    createdAt      DateTime   @default(now())
+    subscription   String
+    order          SalesOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+    @@index([tenantId])
+    @@index([tenantId, invoiceNumber])
+}

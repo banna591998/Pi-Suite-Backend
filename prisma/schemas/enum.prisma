@@ -1,0 +1,101 @@
+enum EnterpriseRole {
+    SUPER_ADMIN // Global platform administrator with cross-tenant and infrastructure control
+    TENANT_ADMIN // Company owner/administrator with full operational control over a specific tenant
+
+    // Module Specific Roles matching sidebar and system features
+    ANALYTICS_MANAGER
+    AUTH_MANAGER
+    COLLABORATION_MANAGER
+    FINANCE_CONTROLLER
+    MANUFACTURING_MANAGER
+    INVENTORY_MANAGER
+    PAYMENT_CONTROLLER
+    PROCUREMENT_OFFICER
+    ROLES_MANAGER
+    SALES_MANAGER
+    SECURITY_AUDITOR
+    TENANT_MANAGER
+    TMS_MANAGER
+    WMS_MANAGER
+    SETTINGS_MANAGER
+
+    // Operational Roles
+    WMS_SUPERVISOR
+    INVENTORY_CLERK
+    VENDOR_REPRESENTATIVE
+    COMPLIANCE_AUDITOR
+    ADMIN
+    MANAGER
+    STAFF
+    EDITOR
+}
+
+enum VehicleStatus {
+    IDLE
+    ON_TRIP
+    MAINTENANCE
+    OFFLINE
+}
+
+enum ShipmentStatus {
+    PENDING
+    DISPATCHED
+    IN_TRANSIT
+    DELIVERED
+    RETURNED
+    DELAYED
+}
+
+enum RfqStatus {
+    SENT
+    RECEIVED
+    ACCEPTED
+    REJECTED
+}
+
+enum PoStatus {
+    DRAFT
+    PENDING_APPROVAL
+    APPROVED
+    FULFILLED
+    CANCELLED
+}
+
+enum WorkOrderStatus {
+    PLANNED
+    IN_PROGRESS
+    QUALITY_TESTING
+    COMPLETED
+    CANCELLED
+}
+
+enum SalesChannel {
+    ECOMMERCE
+    RETAIL
+    WHOLESALE
+    B2B_PORTAL
+}
+
+enum OrderStatus {
+    PENDING
+    ATP_VERIFIED
+    BACKORDERED
+    PROCESSING
+    FULFILLED
+    CANCELLED
+}
+
+enum AssetStatus {
+    OPERATIONAL
+    MAINTENANCE_REQUIRED
+    UNDER_REPAIR
+    DECOMMISSIONED
+}
+
+enum CurrencyType {
+    USD
+    EUR
+    BDT
+    GBP
+    CAD
+}

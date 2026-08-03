@@ -1,0 +1,77 @@
+model EnterpriseAsset {
+    id              String      @id @default(uuid())
+    tenantId        String
+    assetName       String
+    serialNumber    String      @unique
+    category        String // e.g., "HEAVY_MACHINERY", "TRANSPORT_TRUCK"
+    purchaseCost    Float
+    salvageValue    Float       @default(0.0)
+    usefulLifeYears Int // e.g., 5 years for depreciation
+    purchaseDate    DateTime
+    status          AssetStatus @default(OPERATIONAL)
+    lastMaintenance DateTime?
+    nextMaintenance DateTime?
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+
+    spareParts      SparePart[]
+    maintenanceLogs AssetMaintenanceLog[]
+
+    @@index([tenantId])
+}
+
+model SparePart {
+    id           String          @id @default(uuid())
+    tenantId     String
+    partName     String
+    sku          String          @unique
+    stockLevel   Int             @default(0)
+    minThreshold Int             @default(5)
+    unitCost     Float
+    assetId      String
+    asset        EnterpriseAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    @@index([tenantId, assetId])
+}
+
+model AssetMaintenanceLog {
+    id          String          @id @default(uuid())
+    tenantId    String
+    assetId     String
+    asset       EnterpriseAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+    description String
+    cost        Float
+    performedAt DateTime        @default(now())
+
+    @@index([tenantId, assetId])
+}
+
+model FinancialLedger {
+    id            String       @id @default(uuid())
+    tenantId      String
+    transactionNo String       @unique
+    currency      CurrencyType @default(USD)
+    amount        Float
+    exchangeRate  Float        @default(1.0) // Relative to base currency (USD)
+    category      String // e.g., "COGS", "SHIPPING", "CUSTOMS", "REVENUE"
+    referenceId   String? // e.g., Order ID or PO ID
+    description   String
+    createdAt     DateTime     @default(now())
+
+    @@index([tenantId])
+}
+
+model LandedCostCalculation {
+    id              String   @id @default(uuid())
+    tenantId        String
+    productId       String
+    baseProductCost Float
+    freightCost     Float    @default(0.0)
+    customsDuty     Float    @default(0.0)
+    insurance       Float    @default(0.0)
+    tax             Float    @default(0.0)
+    totalLandedCost Float
+    createdAt       DateTime @default(now())
+
+    @@index([tenantId])
+}

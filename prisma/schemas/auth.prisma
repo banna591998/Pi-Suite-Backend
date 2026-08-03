@@ -1,0 +1,77 @@
+// ==========================================
+// 1. USER & AUTHENTICATION MODELS
+// ==========================================
+
+model User {
+    id           String   @id @default(uuid())
+    email        String   @unique
+    roleId       String?  @default(uuid())
+    passwordHash String
+    firstName    String
+    lastName     String
+    isActive     Boolean  @default(true)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    // Multi-Tenant and RBAC Relations
+    tenantId      String
+    tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+    userRoles     UserRole[]
+    refreshTokens RefreshToken[]
+
+    // Password Reset Fields
+    resetToken        String?
+    resetTokenExpires DateTime?
+    isMfaEnabled      Boolean    @default(false)
+    mfaSecret         String?
+    auditLogs         AuditLog[]
+
+    @@index([email])
+    @@index([tenantId])
+}
+
+model RefreshToken {
+    id        String   @id @default(uuid())
+    token     String   @unique
+    expiresAt DateTime
+    isRevoked Boolean  @default(false)
+    createdAt DateTime @default(now())
+    userId    String
+    userAgent String?
+    ipAddress String?
+    revoked   Boolean  @default(false)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([token])
+    @@index([userId])
+}
+
+model Permission {
+    id              String           @id @default(uuid())
+    action          String // e.g., "CREATE", "READ", "UPDATE", "DELETE"
+    resource        String // e.g., "INVENTORY", "PURCHASE_ORDER", "BILLING"
+    description     String?
+    createdAt       DateTime         @default(now())
+    rolePermissions RolePermission[]
+
+    @@unique([action, resource])
+}
+
+model SystemUptimeRecord {
+    id          String   @id @default(uuid())
+    serviceName String
+    status      String // "UP" | "DOWN" | "DEGRADED"
+    latencyMs   Float
+    checkedAt   DateTime @default(now())
+}
+
+model AuditLog {
+    id        String   @id @default(uuid())
+    userId    String
+    action    String
+    details   Json
+    tenantId  String?
+    ipAddress String
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id])
+}

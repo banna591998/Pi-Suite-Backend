@@ -1,0 +1,43 @@
+model InventoryTurnoverMetric {
+    id            String   @id @default(uuid())
+    tenantId      String
+    productSku    String
+    turnoverRatio Float
+    holdingCost   Float
+    calculatedAt  DateTime @default(now())
+
+    @@index([tenantId])
+}
+
+model OtifMetric {
+    id              String   @id @default(uuid())
+    tenantId        String
+    orderId         String
+    isOnTime        Boolean
+    isFull          Boolean
+    performanceDate DateTime @default(now())
+
+    @@index([tenantId])
+}
+
+model SupplyChainBottleneck {
+    id           String   @id @default(uuid())
+    tenantId     String
+    processStage String
+    delayHours   Float
+    severity     String // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+    detectedAt   DateTime @default(now())
+
+    @@index([tenantId])
+}
+
+model CustomReportConfig {
+    id         String   @id @default(uuid())
+    tenantId   String
+    reportName String
+    querySql   String
+    formatType String // "PDF" | "EXCEL" | "CSV"
+    createdAt  DateTime @default(now())
+
+    @@index([tenantId])
+}

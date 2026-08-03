@@ -1,0 +1,86 @@
+model Item {
+    id           String   @id @default(uuid())
+    tenantId     String
+    itemCode     String   @unique
+    itemName     String
+    itemGroup    String // Raw Material, Sub-Assembly, Finished Good
+    uom          String // Unit of Measurement (e.g., Pcs, Kg, Meter)
+    standardRate Float    @default(0.0)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    boms BillOfMaterials[]
+
+    @@index([tenantId])
+    @@index([tenantId, itemCode])
+}
+
+model Workstation {
+    id              String   @id @default(uuid())
+    tenantId        String
+    workstationName String
+    hourRate        Float    @default(0.0) // প্রতি ঘণ্টার অপারেশন খরচ
+    description     String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    operations Operation[]
+
+    @@index([tenantId])
+}
+
+model Operation {
+    id            String   @id @default(uuid())
+    tenantId      String
+    operationName String
+    workstationId String
+    timeInMinutes Int      @default(0) // অপারেশন সম্পন্ন করতে লাগা সময়
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    workstation Workstation @relation(fields: [workstationId], references: [id], onDelete: Restrict)
+
+    @@index([tenantId])
+}
+
+model BillOfMaterials {
+    id           String   @id @default(uuid())
+    tenantId     String
+    itemId       String // যে ফিনিশড গুডস বা সাব-অ্যাসেমব্লির জন্য BOM
+    productName  String
+    rawMaterials Json // কাঁচামাল এবং পরিমাণের তালিকা (Dynamic JSON for flexibility)
+    operations   Json? // অপারেশন ও রাউটিং স্টেপস (JSON format)
+    version      Int      @default(1)
+    isActive     Boolean  @default(true)
+    isDefault    Boolean  @default(true)
+    totalCost    Float    @default(0.0) // অটো-ক্যালকুলেটেড ম্যাটেরিয়াল ও অপারেশন কস্ট
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    item       Item        @relation(fields: [itemId], references: [id], onDelete: Restrict)
+    workOrders WorkOrder[]
+
+    @@index([tenantId])
+    @@index([tenantId, productName])
+}
+
+model WorkOrder {
+    id               String          @id @default(uuid())
+    tenantId         String
+    orderNumber      String          @unique
+    bomId            String
+    quantity         Int
+    producedQty      Int             @default(0)
+    status           WorkOrderStatus @default(PLANNED)
+    assignedLine     String // শপ ফ্লো বা মেশিন লাইন
+    plannedStartDate DateTime?
+    plannedEndDate   DateTime?
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+
+    bom BillOfMaterials @relation(fields: [bomId], references: [id], onDelete: Restrict)
+
+    @@index([tenantId])
+    @@index([tenantId, orderNumber])
+    @@index([tenantId, status])
+}

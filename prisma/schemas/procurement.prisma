@@ -1,0 +1,50 @@
+model Vendor {
+    id          String   @id @default(uuid())
+    tenantId    String
+    name        String
+    email       String
+    phoneNumber String
+    rating      Float    @default(5.0)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    purchaseOrders PurchaseOrder[]
+    rfqs           RequestForQuote[]
+
+    @@index([tenantId])
+    @@index([tenantId, email])
+}
+
+model RequestForQuote {
+    id          String    @id @default(uuid())
+    tenantId    String
+    vendorId    String
+    itemDetails String
+    targetPrice Float
+    status      RfqStatus @default(SENT)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+    @@index([tenantId])
+    @@index([tenantId, status])
+}
+
+model PurchaseOrder {
+    id           String   @id @default(uuid())
+    tenantId     String
+    poNumber     String   @unique
+    vendorId     String
+    totalAmount  Float
+    status       PoStatus @default(DRAFT)
+    invoiceMatch Boolean  @default(false)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+
+    @@index([tenantId])
+    @@index([tenantId, poNumber])
+    @@index([tenantId, status])
+}

@@ -1,0 +1,51 @@
+model SupplierPortalRecord {
+    id             String   @id @default(uuid())
+    tenantId       String
+    supplierName   String
+    supplierEmail  String
+    invoiceNo      String
+    shippingStatus String
+    submittedAt    DateTime @default(now())
+
+    @@index([tenantId])
+}
+
+model ClientShipmentTracking {
+    id                String         @id @default(uuid())
+    tenantId          String
+    trackingCode      String         @unique
+    clientName        String
+    clientEmail       String
+    currentLocation   String
+    status            ShipmentStatus @default(PENDING)
+    estimatedDelivery DateTime
+    updatedAt         DateTime       @updatedAt
+
+    @@index([tenantId, trackingCode])
+}
+
+model ContractManufacturingOrder {
+    id          String   @id @default(uuid())
+    tenantId    String
+    factoryName String
+    productName String
+    quantity    Int
+    status      String // e.g., "IN_PRODUCTION", "COMPLETED"
+    dueDate     DateTime
+    createdAt   DateTime @default(now())
+
+    @@index([tenantId])
+}
+
+model DigitalFreightBidding {
+    id          String   @id @default(uuid())
+    tenantId    String
+    routeCode   String
+    truckType   String
+    offeredRate Float
+    carrierName String
+    status      String   @default("OPEN") // OPEN, ACCEPTED, REJECTED
+    createdAt   DateTime @default(now())
+
+    @@index([tenantId])
+}

@@ -1,0 +1,48 @@
+-- CreateTable
+CREATE TABLE "BillOfMaterials" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "productName" TEXT NOT NULL,
+    "rawMaterials" JSONB NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "BillOfMaterials_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkOrder" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "orderNumber" TEXT NOT NULL,
+    "bomId" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "status" "WorkOrderStatus" NOT NULL DEFAULT 'PLANNED',
+    "assignedLine" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "WorkOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "BillOfMaterials_tenantId_idx" ON "BillOfMaterials"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "BillOfMaterials_tenantId_productName_idx" ON "BillOfMaterials"("tenantId", "productName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkOrder_orderNumber_key" ON "WorkOrder"("orderNumber");
+
+-- CreateIndex
+CREATE INDEX "WorkOrder_tenantId_idx" ON "WorkOrder"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "WorkOrder_tenantId_orderNumber_idx" ON "WorkOrder"("tenantId", "orderNumber");
+
+-- CreateIndex
+CREATE INDEX "WorkOrder_tenantId_status_idx" ON "WorkOrder"("tenantId", "status");
+
+-- AddForeignKey
+ALTER TABLE "WorkOrder" ADD CONSTRAINT "WorkOrder_bomId_fkey" FOREIGN KEY ("bomId") REFERENCES "BillOfMaterials"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
