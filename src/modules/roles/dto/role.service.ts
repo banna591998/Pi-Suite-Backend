@@ -56,7 +56,7 @@ export class RoleService {
     return await this.roleRepo.deleteRole(id);
   }
 
-  // নতুন যুক্ত করা মেথড
+  
   async getEnterpriseRoleEnums() {
     return await this.roleRepo.getEnterpriseRoleEnums();
   }
@@ -69,7 +69,7 @@ export class RoleService {
     roleId: string;
     tenantId: string;
   }) {
-    // টেন্যান্ট ও সাবস্ক্রিপশন লিমিট চেক করতে পারো চাইলে
+    
     const subscription = await this.roleRepo.findSubscriptionByTenantId(
       dto.tenantId,
     );
@@ -79,7 +79,7 @@ export class RoleService {
       );
     }
 
-    // কারেন্ট ইউজার বা রোল কাউন্ট লিমিটেড কি না চেক করা যেতে পারে
+    
     return await this.roleRepo.assignRoleToUser(dto.tenantId, {
       email: dto.email,
       password: dto.password,

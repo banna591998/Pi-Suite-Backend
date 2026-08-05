@@ -30,7 +30,7 @@ model ContractManufacturingOrder {
     factoryName String
     productName String
     quantity    Int
-    status      String // e.g., "IN_PRODUCTION", "COMPLETED"
+    status      String 
     dueDate     DateTime
     createdAt   DateTime @default(now())
 
@@ -44,7 +44,7 @@ model DigitalFreightBidding {
     truckType   String
     offeredRate Float
     carrierName String
-    status      String   @default("OPEN") // OPEN, ACCEPTED, REJECTED
+    status      String   @default("OPEN") 
     createdAt   DateTime @default(now())
 
     @@index([tenantId])

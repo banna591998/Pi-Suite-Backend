@@ -1,8 +1,8 @@
 enum EnterpriseRole {
-    SUPER_ADMIN // Global platform administrator with cross-tenant and infrastructure control
-    TENANT_ADMIN // Company owner/administrator with full operational control over a specific tenant
+    SUPER_ADMIN 
+    TENANT_ADMIN 
 
-    // Module Specific Roles matching sidebar and system features
+    
     ANALYTICS_MANAGER
     AUTH_MANAGER
     COLLABORATION_MANAGER
@@ -19,7 +19,7 @@ enum EnterpriseRole {
     WMS_MANAGER
     SETTINGS_MANAGER
 
-    // Operational Roles
+    
     WMS_SUPERVISOR
     INVENTORY_CLERK
     VENDOR_REPRESENTATIVE

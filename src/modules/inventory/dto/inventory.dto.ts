@@ -31,8 +31,8 @@ export const BulkInventoryImportSchema = z.object({
       batchNumber: z.string().optional(),
       serialNumber: z.string().optional(),
       expiryDate: z.string().optional(),
-      unitCost: z.number().positive().optional(), // প্রফিট ও ফাইন্যান্সিয়াল অ্যানালাইসিসের জন্য
-      sellingPrice: z.number().positive().optional(), // প্রফিট মার্জিন গণনার জন্য
+      unitCost: z.number().positive().optional(), 
+      sellingPrice: z.number().positive().optional(), 
     }),
   ),
 });

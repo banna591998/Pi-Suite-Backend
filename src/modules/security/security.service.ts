@@ -14,7 +14,7 @@ export class SecurityService {
   ) {}
 
   async logActivity(tenantId: string, dto: AuditLogDto) {
-    // Feature 83: Audit Trails & Activity Logs
+    
     return this.securityRepo.createAuditLog(tenantId, dto);
   }
 
@@ -23,8 +23,8 @@ export class SecurityService {
   }
 
   async assignRoleWithRBAC(dto: RbacAssignmentDto) {
-    // Feature 82: Granular RBAC (Role-Based Access Control)
-    // Here role assignment and permission verification logic resides
+    
+    
     return {
       success: true,
       message: `Role ${dto.role} successfully assigned to user ${dto.userId}`,
@@ -32,7 +32,7 @@ export class SecurityService {
   }
 
   async recordUptime(dto: UptimeRecordDto) {
-    // Feature 90: SLA & Uptime Monitoring Dashboard
+    
     return this.securityRepo.recordSystemUptime(dto);
   }
 
@@ -41,8 +41,8 @@ export class SecurityService {
   }
 
   async executeGdprErasure(tenantId: string, customerId: string) {
-    // Feature 89: GDPR Data Erasure Protocol
-    // Permanent deletion simulation or execution logic for user personal data
+    
+    
     return {
       success: true,
       message: `GDPR erasure protocol executed successfully for customer ${customerId} in tenant ${tenantId}`,

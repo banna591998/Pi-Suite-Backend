@@ -44,7 +44,7 @@ export class InventoryRepository {
   }
 
   async checkLowStock(tenantId: string) {
-    // Automated Reorder Trigger Query O(log N) via index scan
+    
     return this.prisma.$queryRaw`
       SELECT * FROM "InventoryItem" 
       WHERE "tenantId" = ${tenantId} 

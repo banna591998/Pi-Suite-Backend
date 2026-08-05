@@ -3,8 +3,8 @@ model Item {
     tenantId     String
     itemCode     String   @unique
     itemName     String
-    itemGroup    String // Raw Material, Sub-Assembly, Finished Good
-    uom          String // Unit of Measurement (e.g., Pcs, Kg, Meter)
+    itemGroup    String
+    uom          String
     standardRate Float    @default(0.0)
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
@@ -19,7 +19,7 @@ model Workstation {
     id              String   @id @default(uuid())
     tenantId        String
     workstationName String
-    hourRate        Float    @default(0.0) // প্রতি ঘণ্টার অপারেশন খরচ
+    hourRate        Float    @default(0.0)
     description     String?
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
@@ -34,7 +34,7 @@ model Operation {
     tenantId      String
     operationName String
     workstationId String
-    timeInMinutes Int      @default(0) // অপারেশন সম্পন্ন করতে লাগা সময়
+    timeInMinutes Int      @default(0)
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 
@@ -46,14 +46,14 @@ model Operation {
 model BillOfMaterials {
     id           String   @id @default(uuid())
     tenantId     String
-    itemId       String // যে ফিনিশড গুডস বা সাব-অ্যাসেমব্লির জন্য BOM
+    itemId       String
     productName  String
-    rawMaterials Json // কাঁচামাল এবং পরিমাণের তালিকা (Dynamic JSON for flexibility)
-    operations   Json? // অপারেশন ও রাউটিং স্টেপস (JSON format)
+    rawMaterials Json
+    operations   Json?
     version      Int      @default(1)
     isActive     Boolean  @default(true)
     isDefault    Boolean  @default(true)
-    totalCost    Float    @default(0.0) // অটো-ক্যালকুলেটেড ম্যাটেরিয়াল ও অপারেশন কস্ট
+    totalCost    Float    @default(0.0)
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
@@ -72,7 +72,7 @@ model WorkOrder {
     quantity         Int
     producedQty      Int             @default(0)
     status           WorkOrderStatus @default(PLANNED)
-    assignedLine     String // শপ ফ্লো বা মেশিন লাইন
+    assignedLine     String
     plannedStartDate DateTime?
     plannedEndDate   DateTime?
     createdAt        DateTime        @default(now())

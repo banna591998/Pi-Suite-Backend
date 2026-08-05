@@ -19,7 +19,7 @@ export class FinanceService {
   async getAllAssets(tenantId: string) {
     const assets = await this.financeRepo.findAssets(tenantId);
 
-    // Feature 67: Fixed Asset Depreciation Calculation (Straight-Line Method)
+    
     return assets.map((asset) => {
       const yearsElapsed =
         (new Date().getTime() - new Date(asset.purchaseDate).getTime()) /
@@ -43,17 +43,17 @@ export class FinanceService {
   }
 
   async computeLandedCost(tenantId: string, dto: LandedCostDto) {
-    // Feature 65: Landed Cost Estimation Engine
+    
     return this.financeRepo.calculateAndSaveLandedCost(tenantId, dto);
   }
 
   async recordTransaction(tenantId: string, dto: FinancialLedgerDto) {
-    // Feature 63: Multi-Currency Ledger conversion normalization
+    
     const normalizedAmountUSD = dto.amount / dto.exchangeRate;
 
     return this.financeRepo.createLedgerEntry(tenantId, {
       ...dto,
-      amount: Number(normalizedAmountUSD.toFixed(2)), // Stored in base USD equivalent
+      amount: Number(normalizedAmountUSD.toFixed(2)), 
     });
   }
 

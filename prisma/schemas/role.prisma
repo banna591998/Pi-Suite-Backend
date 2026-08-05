@@ -1,10 +1,6 @@
-// ==========================================
-// 2. ENTERPRISE RBAC (Role-Based Access Control)
-// ==========================================
-
 model Role {
   id          String         @id @default(uuid())
-  name        EnterpriseRole // String থেকে পরিবর্তন করে Enum-এ ম্যাপ করা হয়েছে
+  name        EnterpriseRole
   description String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -14,11 +10,10 @@ model Role {
   userRoles       UserRole[]
   rolePermissions RolePermission[]
 
-  @@unique([name, tenantId]) // প্রতি টেন্যান্টে একটি নির্দিষ্ট রোল একবারই থাকতে পারবে
+  @@unique([name, tenantId])
   @@index([tenantId])
 }
 
-// Explicit Many-to-Many Join Table for Users and Roles
 model UserRole {
   id         String   @id @default(uuid())
   userId     String
@@ -33,7 +28,6 @@ model UserRole {
   @@index([roleId])
 }
 
-// Explicit Many-to-Many Join Table for Roles and Permissions
 model RolePermission {
   id           String   @id @default(uuid())
   roleId       String

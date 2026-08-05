@@ -13,7 +13,7 @@ export class FinanceRepository {
   async createAsset(tenantId: string, dto: CreateAssetDto) {
     const usefulLife = dto.usefulLifeYears;
     const nextMaint = new Date(dto.purchaseDate);
-    nextMaint.setMonth(nextMaint.getMonth() + 6); // 6 months predictive schedule
+    nextMaint.setMonth(nextMaint.getMonth() + 6); 
 
     return this.prisma.enterpriseAsset.create({
       data: {

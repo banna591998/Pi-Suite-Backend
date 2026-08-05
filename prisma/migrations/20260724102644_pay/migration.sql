@@ -1,2 +1,2 @@
--- AlterTable
+
 ALTER TABLE "Subscription" ADD COLUMN     "paymentRef" TEXT;

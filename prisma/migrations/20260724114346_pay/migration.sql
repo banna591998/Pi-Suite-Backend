@@ -1,2 +1,2 @@
--- AlterTable
+
 ALTER TABLE "Subscription" ALTER COLUMN "planType" SET DEFAULT 'UNIFIED_ENTERPRISE';

@@ -34,7 +34,7 @@ export class CollaborationService {
     };
   }
 
-  // --- Supplier Portal ---
+  
   async handleSupplierSubmission(tenantId: string, dto: SupplierPortalDto) {
     return this.collaborationRepo.createSupplierRecord(tenantId, dto);
   }
@@ -51,7 +51,7 @@ export class CollaborationService {
     return this.collaborationRepo.deleteSupplierRecord(id);
   }
 
-  // --- Client Tracking ---
+  
   async updateClientTracking(tenantId: string, dto: ClientTrackingDto) {
     return this.collaborationRepo.upsertClientTracking(tenantId, dto);
   }
@@ -73,7 +73,7 @@ export class CollaborationService {
     return this.collaborationRepo.deleteClientTracking(id);
   }
 
-  // --- Contract Manufacturing ---
+  
   async manageContractManufacturing(
     tenantId: string,
     dto: ContractManufacturingDto,
@@ -89,7 +89,7 @@ export class CollaborationService {
     return this.collaborationRepo.deleteContractOrder(id);
   }
 
-  // --- Freight Bidding ---
+  
   async submitFreightBid(tenantId: string, dto: FreightBiddingDto) {
     return this.collaborationRepo.createFreightBid(tenantId, dto);
   }

@@ -1,25 +1,25 @@
 model Tenant {
     id                  String   @id @default(uuid())
     companyName         String
-    slug                String   @unique // Used for fast URL slug lookups (O(1) via hash index)
+    slug                String   @unique 
     isActive            Boolean  @default(true)
-    industry            String? // e.g., Supply Chain, Manufacturing, Retail
-    size                String? // e.g., 1-50, 51-200, 500+
+    industry            String? 
+    size                String? 
     address             String?
     contactEmail        String?
     phone               String?
     createdAt           DateTime @default(now())
     updatedAt           DateTime @updatedAt
-    allowedIps          String[] // IP Whitelisting for Enterprise Security
+    allowedIps          String[] 
     stripeSecretKey     String?
     stripeWebhookSecret String?
 
     users    User[]
     roles    Role[]
-    branches Branch[] // Multi-location/Warehouse support
+    branches Branch[] 
 
-    @@index([slug]) // O(1) Lookup Table optimization for routing & tenant resolution
-    @@index([companyName]) // Fast search indexing
+    @@index([slug]) 
+    @@index([companyName]) 
 }
 
 model Branch {
@@ -32,5 +32,5 @@ model Branch {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([tenantId]) // Optimized for multi-tenant isolation queries
+    @@index([tenantId]) 
 }

@@ -23,7 +23,7 @@ model OrderItem {
     orderId     String
     productName String
     quantity    Int
-    unitPrice   Price  @relation(fields: [priceId], references: [id]) // Mock or direct relation
+    unitPrice   Price  @relation(fields: [priceId], references: [id]) 
     priceId     String
 
     order SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)

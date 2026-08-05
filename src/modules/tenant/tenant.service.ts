@@ -12,12 +12,12 @@ export class TenantService {
   constructor(
     @Inject(TenantRepository) private readonly tenantRepo: TenantRepository,
   ) {}
-  // tenant.service.ts
+  
   async getAllActiveTenants() {
     return await this.tenantRepo.findAllActive();
   }
   async createTenant(dto: CreateTenantDto) {
-    // Check if slug already exists to maintain consistency and uniqueness
+    
     const existing = await this.tenantRepo.findBySlug(dto.slug);
     if (existing) {
       throw new ConflictException(
@@ -36,12 +36,12 @@ export class TenantService {
   }
 
   async updateTenant(id: string, dto: UpdateTenantDto) {
-    await this.getTenantById(id); // Ensure existence before update
+    await this.getTenantById(id); 
     return await this.tenantRepo.update(id, dto);
   }
 
   async deleteTenant(id: string) {
-    await this.getTenantById(id); // Ensure existence before deletion
+    await this.getTenantById(id); 
     return await this.tenantRepo.delete(id);
   }
 }

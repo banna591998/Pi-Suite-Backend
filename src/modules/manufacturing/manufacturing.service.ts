@@ -19,7 +19,7 @@ export class ManufacturingService {
   ) {}
 
   async createBillOfMaterials(tenantId: string, dto: CreateBomDto) {
-    // Feature 41: BOM Management (Recipe, Raw materials formulation & Cost calculation)
+    
     return this.manufacturingRepo.createBom(tenantId, dto);
   }
 
@@ -28,7 +28,7 @@ export class ManufacturingService {
   }
 
   async createWorkOrder(tenantId: string, dto: CreateWorkOrderDto) {
-    // Verify if BOM exists and belongs to tenant
+    
     const bom = await this.manufacturingRepo.findBomById(tenantId, dto.bomId);
     if (!bom) {
       throw new NotFoundException(
@@ -36,7 +36,7 @@ export class ManufacturingService {
       );
     }
 
-    // Feature 47: Work Order Management & Shop Floor assignment
+    
     return this.manufacturingRepo.createWorkOrder(tenantId, dto);
   }
 

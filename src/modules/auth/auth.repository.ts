@@ -80,7 +80,7 @@ export class AuthRepository implements OnModuleInit {
           firstName: dto.firstName,
           lastName: dto.lastName,
           email: dto.email,
-          passwordHash: dto.passwordHash, // সঠিক হাশ পাসওয়ার্ড
+          passwordHash: dto.passwordHash, 
           tenantId: dto.tenantId,
         },
       });

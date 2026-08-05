@@ -12,7 +12,7 @@ service CollaborationServiceGrpc {
   rpc DeleteSupplierRecord (CollaborationRequest) returns (CollaborationResponse);
 
   // Client Tracking
-  C_RpcClientTrackingUpsert (CollaborationRequest) returns (CollaborationResponse);
+  rpc C_RpcClientTrackingUpsert (CollaborationRequest) returns (CollaborationResponse);
   rpc GetClientTrackings (CollaborationRequest) returns (CollaborationResponse);
   rpc DeleteClientTracking (CollaborationRequest) returns (CollaborationResponse);
 

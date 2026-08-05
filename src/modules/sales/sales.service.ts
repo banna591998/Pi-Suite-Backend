@@ -15,7 +15,7 @@ export class SalesService {
     return this.salesRepo.createSalesOrder(tenantId, dto);
   }
 
-  // Feature 58 & BullMQ Email integration: Generate Invoice and trigger email
+  
   async generateAndSendInvoice(
     tenantId: string,
     orderId: string,
@@ -35,7 +35,7 @@ export class SalesService {
       dto,
     );
 
-    // Push job to BullMQ queue for email dispatch
+    
     await this.emailQueue.add('send-email', {
       type: 'payment.invoice.success',
       data: {

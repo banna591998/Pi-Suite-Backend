@@ -17,6 +17,7 @@ import { FinanceModule } from './modules/finance/finance.module';
 import { CollaborationModule } from './modules/collaboration/collaboration.module';
 import { SecurityModule } from './modules/security/security.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { GrpcGlobalModule } from './grpc/grpc.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
       },
     }),
     BullModule.registerQueue({ name: 'email-queue' }),
+    GrpcGlobalModule,
     AuthModule,
     PaymentModule,
     PrismaModule,

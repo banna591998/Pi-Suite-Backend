@@ -1,159 +1,160 @@
-import { Controller, Inject } from '@nestjs/common';
-import { GrpcMethod, RpcException } from '@nestjs/microservices';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Headers,
+  type RawBodyRequest,
+  Inject,
+  UseGuards,
+  BadRequestException,
+  Logger,
+  Get,
+  Param,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { status } from '@grpc/grpc-js';
+import Stripe from 'stripe';
+import { AuthGuard } from 'src/common/guards/auth-rbac.guard';
 
-@Controller()
+@Controller('payment')
 export class PaymentController {
+  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2026-06-24.dahlia',
+  });
+  private readonly logger = new Logger(PaymentController.name);
+
   constructor(
     @Inject(PaymentService) private readonly service: PaymentService,
   ) {}
 
-  @GrpcMethod('PaymentServiceGrpc', 'Checkout')
-  async checkout(data: { tenantId: string; payloadJson: string }) {
+  @Post('create-checkout')
+  @UseGuards(AuthGuard)
+  async checkout(
+    @Body()
+    body: {
+      tenantId: string;
+      userCount: number;
+      customerName: string;
+      customModuleHours?: number;
+      role?: string;
+    },
+  ) {
+    if (!body.userCount || body.userCount < 10) {
+      throw new BadRequestException('Minimum user count must be at least 10.');
+    }
+
+    return await this.service.createTenantCheckout(
+      body.tenantId,
+      body.userCount,
+      body.customerName,
+      body.customModuleHours || 0,
+      body.role || 'TENANT_ADMIN',
+    );
+  }
+
+  @Post('webhook')
+  async webhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') sig: string,
+  ) {
+    if (!sig) {
+      this.logger.error('Webhook received without signature');
+      throw new BadRequestException('Missing signature');
+    }
+
+    if (!req.rawBody) {
+      this.logger.error('Raw body is missing! Check main.ts configuration.');
+      throw new BadRequestException('Raw body missing');
+    }
+
+    let event: Stripe.Event;
+
     try {
-      const body = JSON.parse(data.payloadJson || '{}');
-      if (!body.userCount || body.userCount < 10) {
-        throw new Error('Minimum user count must be at least 10.');
+      const eventJson = JSON.parse(req.rawBody.toString());
+      const metadata = eventJson.data?.object?.metadata;
+
+      let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+      if (metadata?.tenantId && metadata?.isCustomerPayment === 'true') {
+        const tenantSecret = await this.service.getTenantWebhookSecret(
+          metadata.tenantId,
+        );
+        if (tenantSecret) {
+          webhookSecret = tenantSecret;
+        }
       }
 
-      const result = await this.service.createTenantCheckout(
-        data.tenantId || body.tenantId,
-        body.userCount,
-        body.customerName,
-        body.customModuleHours || 0,
-        body.role || 'TENANT_ADMIN',
+      event = this.stripe.webhooks.constructEvent(
+        req.rawBody,
+        sig,
+        webhookSecret,
       );
-
-      return {
-        success: true,
-        message: 'Checkout session created successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC Checkout Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message: error.message || 'Internal server error during checkout',
-      });
+    } catch (err: any) {
+      this.logger.error(
+        `Webhook Signature Verification Failed: ${err.message}`,
+      );
+      throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
+
+    this.logger.log(`Webhook Event Verified: ${event.type}`);
+    await this.service.handleWebhookEvent(event);
+
+    return { received: true };
   }
 
-  @GrpcMethod('PaymentServiceGrpc', 'SetupGateway')
-  async setupGateway(data: { tenantId: string; payloadJson: string }) {
-    try {
-      const body = JSON.parse(data.payloadJson || '{}');
-      const result = await this.service.saveTenantGatewayConfig(
-        data.tenantId || body.tenantId,
-        body.stripeSecretKey,
-        body.stripeWebhookSecret || '',
-      );
-
-      return {
-        success: true,
-        message: 'Gateway configuration saved successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC SetupGateway Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message: error.message || 'Internal server error during gateway setup',
-      });
-    }
+  @Post('setup-gateway')
+  @UseGuards(AuthGuard)
+  async setupGateway(
+    @Body()
+    body: {
+      tenantId: string;
+      stripeSecretKey: string;
+      stripeWebhookSecret?: string;
+    },
+  ) {
+    return await this.service.saveTenantGatewayConfig(
+      body.tenantId,
+      body.stripeSecretKey,
+      body.stripeWebhookSecret || '',
+    );
   }
 
-  @GrpcMethod('PaymentServiceGrpc', 'CustomerCheckout')
-  async customerCheckout(data: { tenantId: string; payloadJson: string }) {
-    try {
-      const body = JSON.parse(data.payloadJson || '{}');
-      const result = await this.service.createCustomerCheckout(
-        data.tenantId || body.tenantId,
-        body.priceId,
-      );
-
-      return {
-        success: true,
-        message: 'Customer checkout session created successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC CustomerCheckout Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message:
-          error.message || 'Internal server error during customer checkout',
-      });
-    }
+  @Post('customer-checkout')
+  @UseGuards(AuthGuard)
+  async customerCheckout(@Body() body: { tenantId: string; priceId: string }) {
+    return await this.service.createCustomerCheckout(
+      body.tenantId,
+      body.priceId,
+    );
   }
 
-  @GrpcMethod('PaymentServiceGrpc', 'LinkStripeAccount')
-  async linkStripeAccount(data: { tenantId: string; payloadJson: string }) {
-    try {
-      const body = JSON.parse(data.payloadJson || '{}');
-      const result = await this.service.linkConnectedAccount(
-        data.tenantId || body.tenantId,
-        body.stripeAccountId,
-      );
-
-      return {
-        success: true,
-        message: 'Stripe account linked successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC LinkStripeAccount Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message:
-          error.message || 'Internal server error while linking Stripe account',
-      });
-    }
+  @Post('link-account')
+  @UseGuards(AuthGuard)
+  async linkStripeAccount(
+    @Body() body: { tenantId: string; stripeAccountId: string },
+  ) {
+    return await this.service.linkConnectedAccount(
+      body.tenantId,
+      body.stripeAccountId,
+    );
   }
 
-  @GrpcMethod('PaymentServiceGrpc', 'VerifyPayment')
-  async verifyPayment(data: { tenantId: string; payloadJson: string }) {
-    try {
-      const body = JSON.parse(data.payloadJson || '{}');
-      const result = await this.service.verifyAndSavePayment(
-        data.tenantId || body.tenantId,
-        body.sessionId,
-        body.isPlatform || false,
-      );
-
-      return {
-        success: true,
-        message: 'Payment verified successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC VerifyPayment Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message:
-          error.message || 'Internal server error during payment verification',
-      });
-    }
+  @Post('verify-payment')
+  @UseGuards(AuthGuard)
+  async verifyPayment(
+    @Body() body: { tenantId: string; sessionId: string; isPlatform?: boolean },
+  ) {
+    return await this.service.verifyAndSavePayment(
+      body.tenantId,
+      body.sessionId,
+      body.isPlatform || false,
+    );
   }
 
-  @GrpcMethod('PaymentServiceGrpc', 'GetTenantSubscription')
-  async getTenantSubscription(data: { tenantId: string }) {
-    try {
-      const result = await this.service.getTenantSubscription(data.tenantId);
-
-      return {
-        success: true,
-        message: 'Tenant subscription fetched successfully',
-        dataJson: JSON.stringify(result),
-      };
-    } catch (error: any) {
-      console.error('gRPC GetTenantSubscription Error:', error);
-      throw new RpcException({
-        code: status.INTERNAL,
-        message:
-          error.message ||
-          'Internal server error while fetching tenant subscription',
-      });
-    }
+  
+  @Get('subscription/status/:tenantId')
+  @UseGuards(AuthGuard)
+  async getTenantSubscription(@Param('tenantId') tenantId: string) {
+    return await this.service.getTenantSubscription(tenantId);
   }
 }

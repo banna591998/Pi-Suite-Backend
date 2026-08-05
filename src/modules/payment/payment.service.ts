@@ -229,7 +229,7 @@ export class PaymentService {
           if (metadata.tenantId && metadata.isCustomerPayment !== 'true') {
             const role = metadata.role || 'TENANT_ADMIN';
 
-            const licenseCost = 250 * parsedUserCount; // $250 per user license
+            const licenseCost = 250 * parsedUserCount; 
             const implementationFee =
               this.calculateImplementationFee(parsedUserCount);
 

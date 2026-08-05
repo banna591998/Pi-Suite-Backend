@@ -15,7 +15,7 @@ export class AnalyticsService {
   ) {}
 
   async trackInventoryTurnover(tenantId: string, dto: InventoryTurnoverDto) {
-    // Feature 91: Inventory Turnover Ratio Dashboard Metrics
+    
     return this.analyticsRepo.createInventoryTurnover(tenantId, dto);
   }
 
@@ -24,13 +24,13 @@ export class AnalyticsService {
   }
 
   async calculateOtif(tenantId: string, dto: OtifMetricDto) {
-    // Feature 92: OTIF (On-Time, In-Full) Metrics Calculation
+    
     await this.analyticsRepo.recordOtifMetric(tenantId, dto);
     return this.analyticsRepo.getOtifSummary(tenantId);
   }
 
   async detectBottleneck(tenantId: string, dto: BottleneckDto) {
-    // Feature 93: Supply Chain Bottleneck Finder
+    
     return this.analyticsRepo.recordBottleneck(tenantId, dto);
   }
 
@@ -39,12 +39,12 @@ export class AnalyticsService {
   }
 
   async generateCustomReport(tenantId: string, dto: CustomReportDto) {
-    // Feature 94: Custom Report Builder (PDF/Excel/CSV formatting config)
+    
     return this.analyticsRepo.saveCustomReport(tenantId, dto);
   }
 
   async getExecutiveKpis(tenantId: string) {
-    // Feature 99 & 100: Executive KPIs Summary & Automated Reporting
+    
     const otif = await this.analyticsRepo.getOtifSummary(tenantId);
     const turnovers = await this.analyticsRepo.getInventoryTurnovers(tenantId);
     const bottlenecks = await this.analyticsRepo.getBottlenecks(tenantId);

@@ -12,7 +12,7 @@ import { ShipmentStatus } from 'prisma/src/generated/prisma/enums';
 export class CollaborationRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  // --- Supplier Portal ---
+  
   async createSupplierRecord(tenantId: string, dto: SupplierPortalDto) {
     return this.prisma.supplierPortalRecord.create({
       data: {
@@ -59,7 +59,7 @@ export class CollaborationRepository {
     });
   }
 
-  // --- Client Tracking ---
+  
   async upsertClientTracking(tenantId: string, dto: ClientTrackingDto) {
     return this.prisma.clientShipmentTracking.upsert({
       where: { trackingCode: dto.trackingCode },
@@ -110,7 +110,7 @@ export class CollaborationRepository {
     });
   }
 
-  // --- Contract Manufacturing ---
+  
   async createContractOrder(tenantId: string, dto: ContractManufacturingDto) {
     return this.prisma.contractManufacturingOrder.create({
       data: {
@@ -145,7 +145,7 @@ export class CollaborationRepository {
     });
   }
 
-  // --- Freight Bidding ---
+  
   async createFreightBid(tenantId: string, dto: FreightBiddingDto) {
     return this.prisma.digitalFreightBidding.create({
       data: {

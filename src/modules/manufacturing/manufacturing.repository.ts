@@ -11,7 +11,7 @@ export class ManufacturingRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async createBom(tenantId: string, dto: CreateBomDto) {
-    // মোট কস্ট ক্যালকুলেশন (Raw materials + Operations)
+    
     const rawMaterialsCost = dto.rawMaterials.reduce(
       (acc, item) => acc + item.requiredQuantity * item.unitRate,
       0,

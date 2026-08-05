@@ -28,7 +28,7 @@ export class CollaborationController {
     }
   }
 
-  // --- Supplier Portal ---
+  
   @GrpcMethod('CollaborationServiceGrpc', 'CreateSupplierRecord')
   async createSupplierRecord(data: { tenantId: string; payloadJson: string }) {
     try {
@@ -121,7 +121,7 @@ export class CollaborationController {
     }
   }
 
-  // --- Client Tracking ---
+  
   @GrpcMethod('CollaborationServiceGrpc', 'C_RpcClientTrackingUpsert')
   async upsertClientTracking(data: { tenantId: string; payloadJson: string }) {
     try {
@@ -191,7 +191,7 @@ export class CollaborationController {
     }
   }
 
-  // --- Contract Manufacturing ---
+  
   @GrpcMethod('CollaborationServiceGrpc', 'CreateContractOrder')
   async createContractOrder(data: { tenantId: string; payloadJson: string }) {
     try {
@@ -262,7 +262,7 @@ export class CollaborationController {
     }
   }
 
-  // --- Freight Bidding ---
+  
   @GrpcMethod('CollaborationServiceGrpc', 'CreateFreightBid')
   async createFreightBid(data: { tenantId: string; payloadJson: string }) {
     try {

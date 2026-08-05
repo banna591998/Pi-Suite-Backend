@@ -1,10 +1,10 @@
--- CreateEnum
+
 CREATE TYPE "AssetStatus" AS ENUM ('OPERATIONAL', 'MAINTENANCE_REQUIRED', 'UNDER_REPAIR', 'DECOMMISSIONED');
 
--- CreateEnum
+
 CREATE TYPE "CurrencyType" AS ENUM ('USD', 'EUR', 'BDT', 'GBP', 'CAD');
 
--- CreateTable
+
 CREATE TABLE "EnterpriseAsset" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE "EnterpriseAsset" (
     CONSTRAINT "EnterpriseAsset_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "SparePart" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE "SparePart" (
     CONSTRAINT "SparePart_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "AssetMaintenanceLog" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE "AssetMaintenanceLog" (
     CONSTRAINT "AssetMaintenanceLog_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "FinancialLedger" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE "FinancialLedger" (
     CONSTRAINT "FinancialLedger_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "LandedCostCalculation" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -82,32 +82,32 @@ CREATE TABLE "LandedCostCalculation" (
     CONSTRAINT "LandedCostCalculation_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "EnterpriseAsset_serialNumber_key" ON "EnterpriseAsset"("serialNumber");
 
--- CreateIndex
+
 CREATE INDEX "EnterpriseAsset_tenantId_idx" ON "EnterpriseAsset"("tenantId");
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "SparePart_sku_key" ON "SparePart"("sku");
 
--- CreateIndex
+
 CREATE INDEX "SparePart_tenantId_assetId_idx" ON "SparePart"("tenantId", "assetId");
 
--- CreateIndex
+
 CREATE INDEX "AssetMaintenanceLog_tenantId_assetId_idx" ON "AssetMaintenanceLog"("tenantId", "assetId");
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "FinancialLedger_transactionNo_key" ON "FinancialLedger"("transactionNo");
 
--- CreateIndex
+
 CREATE INDEX "FinancialLedger_tenantId_idx" ON "FinancialLedger"("tenantId");
 
--- CreateIndex
+
 CREATE INDEX "LandedCostCalculation_tenantId_idx" ON "LandedCostCalculation"("tenantId");
 
--- AddForeignKey
+
 ALTER TABLE "SparePart" ADD CONSTRAINT "SparePart_assetId_fkey" FOREIGN KEY ("assetId") REFERENCES "EnterpriseAsset"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+
 ALTER TABLE "AssetMaintenanceLog" ADD CONSTRAINT "AssetMaintenanceLog_assetId_fkey" FOREIGN KEY ("assetId") REFERENCES "EnterpriseAsset"("id") ON DELETE CASCADE ON UPDATE CASCADE;

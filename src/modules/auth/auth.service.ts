@@ -135,7 +135,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
     const user = await this.authRepo.createTenantUser({
-      tenantId: dto.tenantId, // এখন আর undefined হবে না
+      tenantId: dto.tenantId, 
       firstName: dto.firstName,
       lastName: dto.lastName,
       email: dto.email,

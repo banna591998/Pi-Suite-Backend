@@ -25,7 +25,7 @@ model SupplyChainBottleneck {
     tenantId     String
     processStage String
     delayHours   Float
-    severity     String // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+    severity     String 
     detectedAt   DateTime @default(now())
 
     @@index([tenantId])
@@ -36,7 +36,7 @@ model CustomReportConfig {
     tenantId   String
     reportName String
     querySql   String
-    formatType String // "PDF" | "EXCEL" | "CSV"
+    formatType String 
     createdAt  DateTime @default(now())
 
     @@index([tenantId])

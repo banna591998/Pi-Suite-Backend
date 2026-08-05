@@ -10,7 +10,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: { expiresIn: '15m' }, // Adjust expiry as per your auth flow
+      signOptions: { expiresIn: '15m' }, 
     }),
   ],
   controllers: [TenantController],

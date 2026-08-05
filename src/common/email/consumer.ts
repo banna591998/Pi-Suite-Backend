@@ -3,7 +3,6 @@ import { type Job } from 'bull';
 import { Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
-// বেস গ্লাস টেমপ্লেট হেল্পার মক বা ইমপোর্ট
 function getGlassTemplate(options: {
   status: string;
   title: string;
@@ -26,7 +25,7 @@ function getGlassTemplate(options: {
 export class EmailProcessor {
   private readonly logger = new Logger(EmailProcessor.name);
 
-  // SMTP Configuration
+  
   private transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {

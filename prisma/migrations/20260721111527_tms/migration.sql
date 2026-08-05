@@ -1,10 +1,10 @@
--- CreateEnum
+
 CREATE TYPE "VehicleStatus" AS ENUM ('IDLE', 'ON_TRIP', 'MAINTENANCE', 'OFFLINE');
 
--- CreateEnum
+
 CREATE TYPE "ShipmentStatus" AS ENUM ('DISPATCHED', 'IN_TRANSIT', 'DELIVERED', 'RETURNED', 'DELAYED');
 
--- CreateTable
+
 CREATE TABLE "FleetVehicle" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE "FleetVehicle" (
     CONSTRAINT "FleetVehicle_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "Shipment" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -40,26 +40,26 @@ CREATE TABLE "Shipment" (
     CONSTRAINT "Shipment_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "FleetVehicle_vehicleNumber_key" ON "FleetVehicle"("vehicleNumber");
 
--- CreateIndex
+
 CREATE INDEX "FleetVehicle_tenantId_idx" ON "FleetVehicle"("tenantId");
 
--- CreateIndex
+
 CREATE INDEX "FleetVehicle_tenantId_status_idx" ON "FleetVehicle"("tenantId", "status");
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "Shipment_trackingNumber_key" ON "Shipment"("trackingNumber");
 
--- CreateIndex
+
 CREATE INDEX "Shipment_tenantId_idx" ON "Shipment"("tenantId");
 
--- CreateIndex
+
 CREATE INDEX "Shipment_tenantId_trackingNumber_idx" ON "Shipment"("tenantId", "trackingNumber");
 
--- CreateIndex
+
 CREATE INDEX "Shipment_tenantId_status_idx" ON "Shipment"("tenantId", "status");
 
--- AddForeignKey
+
 ALTER TABLE "Shipment" ADD CONSTRAINT "Shipment_vehicleId_fkey" FOREIGN KEY ("vehicleId") REFERENCES "FleetVehicle"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { status } from '@grpc/grpc-js';
 
 @Controller()
-export class AuthGrpcController {
+export class AuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @GrpcMethod('AuthServiceGrpc', 'RegisterTenant')
@@ -19,7 +19,8 @@ export class AuthGrpcController {
       console.error('gRPC RegisterTenant Error:', error);
       throw new RpcException({
         code: status.INTERNAL,
-        message: error.message || 'Internal server error during tenant registration',
+        message:
+          error.message || 'Internal server error during tenant registration',
       });
     }
   }

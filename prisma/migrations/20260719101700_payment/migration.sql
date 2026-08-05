@@ -1,4 +1,4 @@
--- CreateTable
+
 CREATE TABLE "Subscription" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "Subscription" (
     CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "PaymentLog" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -27,8 +27,8 @@ CREATE TABLE "PaymentLog" (
     CONSTRAINT "PaymentLog_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "Subscription_tenantId_key" ON "Subscription"("tenantId");
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "PaymentLog_stripeSessionId_key" ON "PaymentLog"("stripeSessionId");

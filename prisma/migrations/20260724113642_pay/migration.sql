@@ -1,4 +1,4 @@
--- AlterTable
+
 ALTER TABLE "Subscription" ADD COLUMN     "customModuleFee" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
 ADD COLUMN     "customerName" TEXT,
 ADD COLUMN     "licenseCost" DOUBLE PRECISION NOT NULL DEFAULT 0.0,

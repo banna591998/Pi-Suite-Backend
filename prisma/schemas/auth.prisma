@@ -1,6 +1,6 @@
-// ==========================================
-// 1. USER & AUTHENTICATION MODELS
-// ==========================================
+
+
+
 
 model User {
     id           String   @id @default(uuid())
@@ -13,13 +13,13 @@ model User {
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
-    // Multi-Tenant and RBAC Relations
+    
     tenantId      String
     tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
     userRoles     UserRole[]
     refreshTokens RefreshToken[]
 
-    // Password Reset Fields
+    
     resetToken        String?
     resetTokenExpires DateTime?
     isMfaEnabled      Boolean    @default(false)
@@ -48,8 +48,8 @@ model RefreshToken {
 
 model Permission {
     id              String           @id @default(uuid())
-    action          String // e.g., "CREATE", "READ", "UPDATE", "DELETE"
-    resource        String // e.g., "INVENTORY", "PURCHASE_ORDER", "BILLING"
+    action          String 
+    resource        String 
     description     String?
     createdAt       DateTime         @default(now())
     rolePermissions RolePermission[]
@@ -60,7 +60,7 @@ model Permission {
 model SystemUptimeRecord {
     id          String   @id @default(uuid())
     serviceName String
-    status      String // "UP" | "DOWN" | "DEGRADED"
+    status      String 
     latencyMs   Float
     checkedAt   DateTime @default(now())
 }

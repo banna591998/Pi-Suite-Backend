@@ -23,16 +23,16 @@ export class ProcurementService {
   }
 
   async sendAutomatedRfq(tenantId: string, dto: CreateRfqDto) {
-    // Feature 31: Automated RFQ dispatch logic
+    
     return this.procurementRepo.createRfq(tenantId, dto);
   }
 
   async createPurchaseOrder(tenantId: string, dto: CreatePoDto) {
-    // Feature 33: PO Lifecycle creation
+    
     return this.procurementRepo.createPurchaseOrder(tenantId, dto);
   }
 
-  // Feature 36: Three-Way Matching (PO amount vs Invoice vs Goods Receipt value)
+  
   async performThreeWayMatching(tenantId: string, dto: ThreeWayMatchDto) {
     const po = await this.procurementRepo.findPoById(tenantId, dto.poId);
     if (!po) {

@@ -33,11 +33,11 @@ export class TmsService {
   }
 
   async createShipment(tenantId: string, dto: CreateShipmentDto) {
-    // Feature 18: Freight Rate / Cost automated check & validation logic
+    
     return this.tmsRepo.createShipment(tenantId, dto);
   }
 
-  // Feature 23: Proof of Delivery (PoD) with OTP verification
+  
   async verifyAndCompletePoD(
     tenantId: string,
     shipmentId: string,

@@ -1,4 +1,4 @@
--- CreateTable
+
 CREATE TABLE "TenantSubscription" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "TenantSubscription" (
     CONSTRAINT "TenantSubscription_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "CustomerTransaction" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE "CustomerTransaction" (
     CONSTRAINT "CustomerTransaction_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "TenantSubscription_tenantId_key" ON "TenantSubscription"("tenantId");

@@ -3,10 +3,10 @@ model EnterpriseAsset {
     tenantId        String
     assetName       String
     serialNumber    String      @unique
-    category        String // e.g., "HEAVY_MACHINERY", "TRANSPORT_TRUCK"
+    category        String 
     purchaseCost    Float
     salvageValue    Float       @default(0.0)
-    usefulLifeYears Int // e.g., 5 years for depreciation
+    usefulLifeYears Int 
     purchaseDate    DateTime
     status          AssetStatus @default(OPERATIONAL)
     lastMaintenance DateTime?
@@ -52,9 +52,9 @@ model FinancialLedger {
     transactionNo String       @unique
     currency      CurrencyType @default(USD)
     amount        Float
-    exchangeRate  Float        @default(1.0) // Relative to base currency (USD)
-    category      String // e.g., "COGS", "SHIPPING", "CUSTOMS", "REVENUE"
-    referenceId   String? // e.g., Order ID or PO ID
+    exchangeRate  Float        @default(1.0) 
+    category      String 
+    referenceId   String? 
     description   String
     createdAt     DateTime     @default(now())
 

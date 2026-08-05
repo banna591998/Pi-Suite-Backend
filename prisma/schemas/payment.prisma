@@ -2,19 +2,19 @@ model Subscription {
   id               String   @id @default(uuid())
   tenantId         String   @unique
   stripeCustomerId String?
-  stripeSubId      String?  @unique // রিনিউয়াল এবং সাবস্ক্রিপশন ট্র্যাক করার জন্য
-  status           String // active, past_due, canceled
-  planType         String   @default("UNIFIED_ENTERPRISE") // সিঙ্গেল ইউনিভার্সাল প্ল্যান
+  stripeSubId      String?  @unique
+  status           String
+  planType         String   @default("UNIFIED_ENTERPRISE")
   currentPeriodEnd DateTime
-  userCount        Int      @default(10) // মিনিমাম ১০ ইউজার বাইন্ডিং
-  licenseCost      Float    @default(0.0) // মাসিক লাইসেন্স কস্ট ($250 per user)
-  setupFee         Float    @default(0.0) // ইমপ্লিমেন্টেশন/সেটআপ ফি (স্ল্যাব অনুযায়ী)
-  trainingFee      Float    @default(0.0) // ট্রেনিং ও অনবোর্ডিং ফি
-  customModuleFee  Float    @default(0.0) // কাস্টম মডিউল ডেভেলপমেন্ট ফি ($250/hr রেট অনুযায়ী)
-  paymentRef       String? // Stripe Payment Intent / Session Reference
-  customerName     String? // ক্লায়েন্ট বা টেনেন্টের নাম
-  role             String   @default("TENANT_ADMIN") // রোল ম্যানেজমেন্ট
-  permissions      String[] // ডাইনামিক অ্যাক্টিভিটি পারমিশন
+  userCount        Int      @default(10)
+  licenseCost      Float    @default(0.0)
+  setupFee         Float    @default(0.0)
+  trainingFee      Float    @default(0.0)
+  customModuleFee  Float    @default(0.0)
+  paymentRef       String?
+  customerName     String?
+  role             String   @default("TENANT_ADMIN")
+  permissions      String[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -25,7 +25,7 @@ model PaymentLog {
   stripeSessionId String   @unique
   amount          Float
   currency        String   @default("usd")
-  status          String // succeeded, failed
+  status          String
   invoiceUrl      String?
   createdAt       DateTime @default(now())
 }

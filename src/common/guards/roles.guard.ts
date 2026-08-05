@@ -36,7 +36,6 @@ export class RolesGuard implements CanActivate {
 
     const userRoles: string[] = user.roles || [user.role];
 
-    // সুপার অ্যাডমিন হলে গ্লোবাল এক্সেস
     if (userRoles.includes(EnterpriseRole.SUPER_ADMIN)) {
       return true;
     }

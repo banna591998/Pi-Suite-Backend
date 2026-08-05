@@ -1,7 +1,7 @@
--- AlterEnum
+
 ALTER TYPE "ShipmentStatus" ADD VALUE 'PENDING';
 
--- CreateTable
+
 CREATE TABLE "SupplierPortalRecord" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE "SupplierPortalRecord" (
     CONSTRAINT "SupplierPortalRecord_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "ClientShipmentTracking" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE "ClientShipmentTracking" (
     CONSTRAINT "ClientShipmentTracking_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "ContractManufacturingOrder" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE "ContractManufacturingOrder" (
     CONSTRAINT "ContractManufacturingOrder_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+
 CREATE TABLE "DigitalFreightBidding" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -57,17 +57,17 @@ CREATE TABLE "DigitalFreightBidding" (
     CONSTRAINT "DigitalFreightBidding_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
+
 CREATE INDEX "SupplierPortalRecord_tenantId_idx" ON "SupplierPortalRecord"("tenantId");
 
--- CreateIndex
+
 CREATE UNIQUE INDEX "ClientShipmentTracking_trackingCode_key" ON "ClientShipmentTracking"("trackingCode");
 
--- CreateIndex
+
 CREATE INDEX "ClientShipmentTracking_tenantId_trackingCode_idx" ON "ClientShipmentTracking"("tenantId", "trackingCode");
 
--- CreateIndex
+
 CREATE INDEX "ContractManufacturingOrder_tenantId_idx" ON "ContractManufacturingOrder"("tenantId");
 
--- CreateIndex
+
 CREATE INDEX "DigitalFreightBidding_tenantId_idx" ON "DigitalFreightBidding"("tenantId");

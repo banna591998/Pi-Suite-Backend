@@ -16,7 +16,6 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
     const tokenFromCookie = request.cookies?.['access_token'];
 
-    // টোকেন এক্সট্রাকশন
     const token = authHeader?.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
       : tokenFromCookie;
@@ -26,7 +25,6 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      // ভেরিফিকেশন
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_ACCESS_SECRET,
       });

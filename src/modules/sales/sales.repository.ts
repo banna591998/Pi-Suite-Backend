@@ -9,7 +9,7 @@ export class SalesRepository {
   async createSalesOrder(tenantId: string, dto: CreateSalesOrderDto) {
     let totalAmount = 0;
 
-    // Explicitly defining the type for itemsData array to prevent 'never[]' inference error
+    
     const itemsData: Array<{
       productName: string;
       quantity: number;

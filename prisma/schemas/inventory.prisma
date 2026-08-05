@@ -1,17 +1,17 @@
 model InventoryItem {
     id           String    @id @default(uuid())
-    tenantId     String // Multi-Tenant Inventory Isolation (Feature 1)
+    tenantId     String 
     warehouseId  String
     zoneId       String?
     sku          String
     name         String
-    stockCount   Int       @default(0) // Real-time Stock Tracking (Feature 2)
-    safetyStock  Int       @default(0) // Multi-Echelon Safety Stock (Feature 3)
-    reorderPoint Int       @default(0) // Automated Reorder Trigger (Feature 4)
-    batchNumber  String? // Batch & Lot Tracking (Feature 5)
-    serialNumber String?   @unique // Serial Number Management (Feature 6)
-    expiryDate   DateTime? // FEFO Tracking (Feature 7)
-    qrCode       String? // Barcoding & QR Code (Feature 8)
+    stockCount   Int       @default(0) 
+    safetyStock  Int       @default(0) 
+    reorderPoint Int       @default(0) 
+    batchNumber  String? 
+    serialNumber String?   @unique 
+    expiryDate   DateTime? 
+    qrCode       String? 
     createdAt    DateTime  @default(now())
     updatedAt    DateTime  @updatedAt
 
@@ -21,5 +21,5 @@ model InventoryItem {
     @@unique([tenantId, sku, batchNumber])
     @@index([tenantId])
     @@index([tenantId, sku])
-    @@index([tenantId, expiryDate]) // FEFO performance optimization O(log N)
+    @@index([tenantId, expiryDate]) 
 }

@@ -5,7 +5,7 @@ import { CreateTenantDto, UpdateTenantDto } from './dto/tenant.dto';
 @Injectable()
 export class TenantRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  // tenant.repository.ts
+  
   async findAllActive() {
     return await this.prisma.tenant.findMany({
       where: { isActive: true },
@@ -20,7 +20,7 @@ export class TenantRepository {
       },
     });
   }
-  // O(1) Lookup by ID utilizing Primary Key Cluster Index
+  
   async findById(id: string) {
     return await this.prisma.tenant.findUnique({
       where: { id },
@@ -28,7 +28,7 @@ export class TenantRepository {
     });
   }
 
-  // O(1) Lookup by Slug utilizing Unique Hash Index
+  
   async findBySlug(slug: string) {
     return await this.prisma.tenant.findUnique({
       where: { slug },

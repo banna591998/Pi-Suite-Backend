@@ -1,4 +1,4 @@
--- CreateTable
+
 CREATE TABLE "SystemUptimeRecord" (
     "id" TEXT NOT NULL,
     "serviceName" TEXT NOT NULL,

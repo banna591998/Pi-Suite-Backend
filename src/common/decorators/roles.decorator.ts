@@ -30,17 +30,16 @@ export class EnterpriseRolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // AuthGuard থেকে আসা পেইলড (যেখানে sub, email, tenantId থাকে)
+    const user = request.user;
 
     if (!user || !user.sub || !user.tenantId) {
       throw new ForbiddenException('Invalid tenant or user session context.');
     }
 
-    // ডাটাবেজ থেকে ইউজারের সঠিক টেন্যান্ট এবং তার অ্যাসাইনড রোলগুলো ফেচ করা
     const dbUser = await this.prisma.user.findFirst({
       where: {
         id: user.sub,
-        tenantId: user.tenantId, // টেন্যান্ট আইসোলেশন কঠোরভাবে নিশ্চিত করা হলো
+        tenantId: user.tenantId,
       },
       include: {
         userRoles: {
@@ -65,10 +64,8 @@ export class EnterpriseRolesGuard implements CanActivate {
       );
     }
 
-    // ইউজারের রোলগুলোর মধ্য থেকে রিকোয়ার্ড রোলের সাথে ম্যাচ করে কি না চেক করা
     const userRoleNames = dbUser.userRoles.map((ur) => ur.role.name);
 
-    // যদি ইউজার সুপারঅ্যাডমিন বা টেন্যান্ট অ্যাডমিন হয়, তবে বাই-ডিফল্ট সব পাবে
     const hasAccess =
       userRoleNames.includes('SUPER_ADMIN' as any) ||
       userRoleNames.includes('TENANT_ADMIN' as any) ||

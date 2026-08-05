@@ -23,7 +23,7 @@ export class WarehouseService {
 
   async findAll(tenantId: string) {
     const warehouses = await this.warehouseRepo.findAllWarehouses(tenantId);
-    console.log('Fetched Warehouses from DB:', warehouses); // এটি টার্মিনালে প্রিন্ট করে চেক করুন
+    console.log('Fetched Warehouses from DB:', warehouses); 
     return warehouses;
   }
 
