@@ -5,93 +5,86 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# PI-SCM Base Features Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This document provides a comprehensive overview of the features and architectural components of the PI-SCM (Supply Chain Management) backend system.
 
-## Project setup
+## 🚀 Core Architecture & Tech Stack
+- **Framework:** NestJS (Modular, Scalable Node.js framework)
+- **Language:** TypeScript
+- **Database:** PostgreSQL (via Prisma ORM)
+- **Communication:** REST API, Kafka (for microservices/async communication)
+- **Message Queue:** Bull (Redis-backed) for background tasks like email processing
+- **Validation:** Zod (Type-safe validation)
+- **Authentication:** JWT (JSON Web Tokens), Passport.js (Google OAuth 2.0 support)
+- **Deployment:** Docker support (docker-compose included)
 
-```bash
-$ npm install
-```
+---
 
-### Running the Application
+## 🏗️ Core Infrastructure Systems
 
-```bash
-# Development mode
-npm run start:dev
+### 1. Multi-Tenancy
+- **Strategy:** Tenant identification via Host Header (Subdomains or Custom Domains).
+- **Handling:** Dedicated `ExtractTenant` decorator to dynamically route requests based on the tenant context.
 
-# Production mode
-npm run start:prod
-```
+### 2. Authentication & Authorization
+- **JWT-Based Auth:** Secure token extraction from headers or cookies.
+- **RBAC (Role-Based Access Control):** Granular permission management using `RolesGuard`.
+- **Super Admin Support:** Global access for system administrators.
+- **Two-Factor Authentication (2FA):** Integrated via `otplib` and QR code generation.
+- **Social Login:** Google OAuth 2.0 integration.
 
-### Infrastructure (Docker)
+### 3. Security
+- **Encryption:** Utility for sensitive data encryption.
+- **Throttling:** Atomic throttle guards for rate limiting.
+- **Logging:** Interceptor for comprehensive request/response logging.
 
-Start Kafka and Zookeeper using Docker Compose:
+---
 
-```bash
-# unit tests
-$ npm run test
+## 📦 Functional SCM Modules
 
-# e2e tests
-$ npm run test:e2e
+### 1. Procurement
+- Management of purchasing processes, vendor interactions, and procurement lifecycles.
 
-# test coverage
-$ npm run test:cov
-```
+### 2. Inventory Management
+- Real-time tracking of stock levels, inventory movements, and stock adjustments.
 
-## Deployment
+### 3. Warehouse Management
+- Management of warehouse layouts, storage bins, picking, packing, and shipping processes.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### 4. Transportation Management System (TMS)
+- Logistics planning, carrier management, and shipment tracking.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 5. Manufacturing
+- Production planning, Bill of Materials (BOM), work orders, and manufacturing execution.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### 6. Sales & Fulfillment
+- Order management, customer relationship management (CRM) links, and fulfillment workflows.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 💼 Supporting Business Systems
 
-Check out a few resources that may come in handy when working with NestJS:
+### 1. Finance & Asset Management
+- Enterprise Asset Management (EAM) and financial accounting integration.
+- Asset tracking, depreciation, and financial reporting.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 2. Payment System
+- **Provider:** Stripe integration.
+- **Features:** Subscription management, payment processing, and transaction history.
 
-## Support
+### 3. Business Network Collaboration
+- Tools for collaborating across the supply chain network with partners and suppliers.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 4. Analytics & Reporting
+- Data-driven insights across all SCM modules.
+- Performance metrics and operational reports.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🛠️ Technical Utilities & Integrations
+- **Email System:** Asynchronous email dispatching using Bull queues and Nodemailer.
+- **2FA Utilities:** Support for TOTP-based multi-factor authentication.
+- **Prisma Schema Splitting:** Large schema managed across multiple specialized `.prisma` files for better maintainability.
+- **Kafka Integration:** Ready for event-driven architecture and microservice communication.
