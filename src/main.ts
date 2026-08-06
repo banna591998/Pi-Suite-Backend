@@ -24,6 +24,7 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // ১. সব gRPC মাইক্রোসার্ভিস কানেক্ট করুন
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -150,9 +151,10 @@ async function bootstrap() {
     },
   });
 
-  await app.init();
+  // ২. প্রথমে সমস্ত মাইক্রোসার্ভিস স্টার্ট করুন
   await app.startAllMicroservices();
 
+  // ৩. এরপর HTTP পোর্ট লিসেন শুরু করুন (এটি আগে দিলে HTTP রাউটগুলো সঠিকভাবে বাইন্ড হয়)
   const port = process.env.PORT || 3000;
   await app.listen(port);
 
