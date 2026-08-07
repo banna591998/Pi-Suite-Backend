@@ -109,7 +109,6 @@ export class RoleRepository {
     });
   }
 
-  
   async getEnterpriseRoleEnums() {
     return [
       'SUPER_ADMIN',

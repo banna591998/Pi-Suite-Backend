@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { RoleController } from './role.controller';
 import { RoleService } from './role.service';
-import { RoleRepository } from './role.repository'; 
+import { RoleRepository } from './role.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
@@ -15,10 +15,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     }),
   ],
   controllers: [RoleController],
-  providers: [
-    RoleService,
-    RoleRepository, 
-  ],
+  providers: [RoleService, RoleRepository],
   exports: [RoleService],
 })
 export class RoleModule {}

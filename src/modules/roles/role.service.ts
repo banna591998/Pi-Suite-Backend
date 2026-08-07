@@ -56,7 +56,6 @@ export class RoleService {
     return await this.roleRepo.deleteRole(id);
   }
 
-  
   async getEnterpriseRoleEnums() {
     return await this.roleRepo.getEnterpriseRoleEnums();
   }
@@ -69,7 +68,6 @@ export class RoleService {
     roleId: string;
     tenantId: string;
   }) {
-    
     const subscription = await this.roleRepo.findSubscriptionByTenantId(
       dto.tenantId,
     );
@@ -79,7 +77,6 @@ export class RoleService {
       );
     }
 
-    
     return await this.roleRepo.assignRoleToUser(dto.tenantId, {
       email: dto.email,
       password: dto.password,

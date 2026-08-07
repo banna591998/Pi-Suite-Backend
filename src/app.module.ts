@@ -5,7 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
-import { RoleModule } from './modules/roles/dto/role.module';
+import { RoleModule } from './modules/roles/role.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
